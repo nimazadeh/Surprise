@@ -1,0 +1,42 @@
+/* Intentional adjustments for narrow handsets and large workspaces. */
+@media (max-width: 359px) {
+  .main-content { padding-inline: .78rem; }
+  .page-header { margin-bottom: .85rem; }
+  .hero { min-height: 430px; padding: 1.05rem; border-radius: 23px; }
+  .hero__content { min-height: 388px; }
+  .hero h1 { font-size: 2.85rem; }
+  .hero__copy { max-width: 14.9rem; font-size: .78rem; }
+  .hero__actions { gap: .45rem; }
+  .button { min-height: 41px; padding-inline: .78rem; }
+  .rail { width: calc(100% + 1.56rem); margin-inline: -.78rem; padding-inline: .78rem; grid-auto-columns: 132px; }
+  .track-row { gap: .42rem; grid-template-columns: 27px minmax(0, 1fr) auto; }
+  .track-row__number { width: 27px; }
+  .track-row__cover { width: 35px; height: 35px; flex-basis: 35px; }
+  .album-detail__cover { width: min(78vw, 270px); }
+  .full-player__body { padding-inline: 1rem; }
+  .player-controls { gap: 1rem; }
+}
+
+@media (min-width: 390px) and (max-width: 539px) {
+  .hero { min-height: 480px; }
+  .hero__content { min-height: 435px; }
+  .rail { grid-auto-columns: 155px; }
+}
+
+@media (min-width: 1440px) {
+  .main-content { padding-inline: 4.8rem; }
+  .page { max-width: var(--content-max); }
+  .hero { min-height: 565px; }
+  .hero__content { min-height: 510px; }
+  .album-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1800px) {
+  .album-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .main-content { padding-inline: 6rem; }
+}
+
+@media (pointer: coarse) {
+  .track-row { min-height: 67px; }
+  .track-row__menu { width: 40px; height: 40px; }
+}

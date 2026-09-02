@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="A premium fan-made music experience dedicated to Shirin David.">
+  <meta name="theme-color" content="#0a0a0d">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:title" content="Shirin — The Shirin David Music Experience">
+  <meta property="og:description" content="A premium fan-made music experience dedicated to Shirin David.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/images/og-cover.svg">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icons/icon.svg">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/player.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <title>Shirin — The Shirin David Music Experience</title>
+  <!-- Tiny self-contained fallback so a restrictive file preview can never remain on the splash forever. -->
+  <style>
+    #static-preview-fallback { position: fixed; z-index: 20; inset: 0; display: grid; padding: 24px; background: radial-gradient(circle at 80% 15%, #6d4467 0, transparent 38%), radial-gradient(circle at 10% 90%, #273553 0, transparent 45%), #09090c; color: #f8f7fb; font-family: Inter, Arial, sans-serif; place-items: center; }
+    #static-preview-fallback > div { width: min(100%, 440px); padding: 28px; border: 1px solid rgba(255,255,255,.13); border-radius: 26px; background: rgba(20,20,27,.78); box-shadow: 0 22px 60px rgba(0,0,0,.36); text-align: center; }
+    #static-preview-fallback b { display: block; margin-bottom: 12px; color: #ffb7d8; font-size: 11px; letter-spacing: .16em; }
+    #static-preview-fallback h1 { margin: 0; font-size: 30px; line-height: 1.08; }
+    #static-preview-fallback p { margin: 14px 0 0; color: #c7c4d0; font-size: 14px; line-height: 1.55; }
+    #static-preview-fallback code { display: inline-block; margin-top: 18px; padding: 10px 13px; border-radius: 10px; background: rgba(255,255,255,.08); color: #fff; font-size: 12px; }
+    #static-preview-fallback small { display: block; margin-top: 18px; color: #908c9b; font-size: 11px; line-height: 1.45; }
+    html.app-ready #static-preview-fallback { display: none; }
+    #splash { position: fixed; z-index: 30; inset: 0; display: grid; background: #09090c; color: #fff; place-items: center; }
+    html:not(.app-ready) #splash { animation: static-splash-exit .5s ease 5.2s forwards; }
+    @keyframes static-splash-exit { to { visibility: hidden; opacity: 0; } }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <a class="skip-link" href="#main-content" data-skip-link>Skip to content</a>
+
+  <div id="app" class="app-shell" aria-live="polite">
+    <aside id="sidebar" class="sidebar" aria-label="Primary navigation"></aside>
+    <main id="main-content" class="main-content" tabindex="-1"></main>
+    <div id="persistent-player" class="persistent-player-layer"></div>
+    <nav id="mobile-nav" class="mobile-nav" aria-label="Primary navigation"></nav>
+  </div>
+
+  <section id="static-preview-fallback" aria-label="SHIRIN preview fallback">
+    <div>
+      <b>SHIRIN · PREVIEW MODE</b>
+      <h1>Your music experience is ready.</h1>
+      <p>This viewer cannot load the local JavaScript modules needed for the interactive player. Use the <strong>Live Preview</strong>, or start the project with a static web server.</p>
+      <code>python3 -m http.server 5500</code>
+      <small>The live application always renders its local demo catalogue immediately while the music provider loads.</small>
+    </div>
+  </section>
+
+  <div id="overlay-root"></div>
+  <div id="sheet-root"></div>
+  <div id="toast-root" class="toast-root" aria-live="polite" aria-atomic="true"></div>
+  <div id="offline-indicator" class="offline-indicator" role="status" hidden>
+    <span class="offline-dot" aria-hidden="true"></span>
+    You’re offline — showing available music metadata.
+  </div>
+
+  <div id="splash" class="splash" role="status" aria-live="polite">
+    <div class="splash-orbit" aria-hidden="true"></div>
+    <div class="splash-wordmark">SHIRIN</div>
+    <p>Loading your music<span class="loading-ellipsis" aria-hidden="true"></span></p>
+    <span class="splash-note">A fan-made listening experience</span>
+  </div>
+
+  <noscript>
+    <div class="noscript-message">SHIRIN needs JavaScript to create the music experience.</div>
+  </noscript>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "SHIRIN — The Shirin David Music Experience",
+  "short_name": "SHIRIN",
+  "description": "A fan-made Shirin David music discovery experience with authorized Deezer previews where available.",
+  "start_url": "./#/home",
+  "display": "standalone",
+  "background_color": "#0a0a0d",
+  "theme_color": "#0a0a0d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

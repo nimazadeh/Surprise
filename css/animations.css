@@ -1,0 +1,45 @@
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer { to { transform: translateX(100%); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes splash-orbit { to { transform: rotate(360deg); } }
+@keyframes mini-player-in { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes full-player-in { from { opacity: 0; transform: translateY(24px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes sheet-up { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
+@keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes toast-in { from { opacity: 0; transform: translateY(13px) scale(.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(-6px) scale(.96); } }
+@keyframes art-pulse { 0%, 100% { transform: scale(1); filter: saturate(1); } 50% { transform: scale(1.035); filter: saturate(1.13); } }
+@keyframes artwork-breathe { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.016) rotate(.15deg); } }
+@keyframes heart-pop { 0% { transform: translateY(-50%) scale(1); } 42% { transform: translateY(-50%) scale(1.34); } 100% { transform: translateY(-50%) scale(1); } }
+@keyframes active-dot { 50% { opacity: .45; transform: scale(.76); } }
+
+.is-playing-indicator { display: inline-flex; height: 15px; align-items: end; gap: 2px; }
+.is-playing-indicator i { width: 2px; height: 40%; border-radius: 2px; background: currentColor; animation: eq 750ms ease-in-out infinite alternate; }
+.is-playing-indicator i:nth-child(2) { height: 90%; animation-delay: -260ms; }
+.is-playing-indicator i:nth-child(3) { height: 58%; animation-delay: -510ms; }
+@keyframes eq { to { height: 100%; } }
+
+.button.is-busy { pointer-events: none; color: transparent; }
+.button.is-busy::after { position: absolute; width: 16px; height: 16px; content: ""; border: 2px solid rgba(38,19,31,.24); border-top-color: currentColor; border-radius: 50%; animation: spin .7s linear infinite; }
+.button--secondary.is-busy::after { border-color: rgba(255,255,255,.2); border-top-color: var(--text); }
+
+.ripple-host { position: relative; overflow: hidden; isolation: isolate; }
+.ripple {
+  position: absolute;
+  z-index: -1;
+  width: 16px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255,255,255,.25);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple .5s ease-out forwards;
+}
+@keyframes ripple { to { opacity: 0; transform: translate(-50%, -50%) scale(18); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-orbit, .skeleton::after, .loading-spinner, .full-player__art.is-playing, .mini-player__art.is-playing img, .is-playing-indicator i { animation: none !important; }
+}

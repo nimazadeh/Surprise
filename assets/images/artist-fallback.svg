@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100" fill="none">
+ <defs>
+  <linearGradient id="bg" x1="76" y1="40" x2="800" y2="1064" gradientUnits="userSpaceOnUse"><stop stop-color="#f8b3d3"/><stop offset=".47" stop-color="#8d70cb"/><stop offset="1" stop-color="#171823"/></linearGradient>
+  <filter id="blur"><feGaussianBlur stdDeviation="70"/></filter>
+ </defs>
+ <rect width="900" height="1100" fill="#16141c"/>
+ <circle cx="694" cy="224" r="300" fill="#f7b0d5" opacity=".77" filter="url(#blur)"/>
+ <circle cx="220" cy="936" r="390" fill="#5459a9" opacity=".75" filter="url(#blur)"/>
+ <path d="M0 612c182-109 345-109 491 0s282 110 409 33v455H0V612Z" fill="url(#bg)" opacity=".85"/>
+ <path d="M232 526c0-133 98-242 218-242s218 109 218 242v574H232V526Z" fill="#13131b" fill-opacity=".72"/>
+ <circle cx="450" cy="496" r="146" fill="#f8d2e1" fill-opacity=".8"/>
+ <path d="M304 498c5-155 75-249 154-249 87 0 159 96 154 249-53-42-100-49-154-50-63 0-109 10-154 50Z" fill="#1b1720"/>
+ <text x="450" y="808" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="92" font-weight="700" letter-spacing="13">SHIRIN</text>
+ <text x="450" y="865" text-anchor="middle" fill="white" fill-opacity=".8" font-family="Arial, sans-serif" font-size="20" letter-spacing="7">DAVID</text>
+</svg>

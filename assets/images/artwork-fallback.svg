@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" fill="none">
+ <defs>
+  <linearGradient id="a" x1="70" y1="40" x2="760" y2="760" gradientUnits="userSpaceOnUse"><stop stop-color="#f7a7c8"/><stop offset=".43" stop-color="#a570e2"/><stop offset="1" stop-color="#3e416d"/></linearGradient>
+  <linearGradient id="b" x1="480" y1="150" x2="200" y2="720" gradientUnits="userSpaceOnUse"><stop stop-color="#fff1f8" stop-opacity=".86"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <filter id="blur"><feGaussianBlur stdDeviation="55"/></filter>
+ </defs>
+ <rect width="800" height="800" fill="#16121d"/>
+ <circle cx="160" cy="180" r="240" fill="#ec94c4" opacity=".8" filter="url(#blur)"/>
+ <circle cx="650" cy="660" r="300" fill="#7375df" opacity=".74" filter="url(#blur)"/>
+ <path d="M120 615C256 480 358 398 680 175" stroke="url(#b)" stroke-width="88" stroke-linecap="round" opacity=".64"/>
+ <rect x="62" y="62" width="676" height="676" rx="338" stroke="white" stroke-opacity=".32"/>
+ <text x="400" y="382" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="72" font-weight="700" letter-spacing="14">SHIRIN</text>
+ <text x="400" y="442" text-anchor="middle" fill="white" fill-opacity=".72" font-family="Arial, sans-serif" font-size="18" letter-spacing="7">MUSIC EXPERIENCE</text>
+</svg>
