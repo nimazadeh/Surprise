@@ -118,7 +118,8 @@ class Artist extends Model
      */
     public function scopeOrdered(Builder $query): Builder
     {
-        return $query->orderByDesc('is_featured')->orderBy('name');
+        // Trailing id keeps paginated lists deterministic on ties.
+        return $query->orderByDesc('is_featured')->orderBy('name')->orderBy('id');
     }
 
     /**

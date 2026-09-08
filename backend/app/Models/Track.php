@@ -119,7 +119,8 @@ class Track extends Model
      */
     public function scopeOrdered(Builder $query): Builder
     {
-        return $query->orderBy('track_number')->orderBy('title');
+        // Trailing id keeps paginated lists deterministic on ties.
+        return $query->orderBy('track_number')->orderBy('title')->orderBy('id');
     }
 
     /**

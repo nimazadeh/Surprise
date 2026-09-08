@@ -126,7 +126,8 @@ class Album extends Model
      */
     public function scopeOrdered(Builder $query): Builder
     {
-        return $query->orderByDesc('release_year')->orderBy('title');
+        // Trailing id keeps paginated lists deterministic on ties.
+        return $query->orderByDesc('release_year')->orderBy('title')->orderBy('id');
     }
 
     /**
