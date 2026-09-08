@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Api\V1\AlbumController;
 use App\Http\Controllers\Api\V1\ArtistController;
+use App\Http\Controllers\Api\V1\CatalogueController;
 use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\MetaController;
+use App\Http\Controllers\Api\V1\ResolveController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\TrackController;
 use Illuminate\Support\Facades\Route;
@@ -30,9 +32,11 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
     // Search + resolve carry their own tighter limiter (30/min).
     Route::middleware('throttle:30,1')->group(function (): void {
         Route::get('/search', SearchController::class)->name('search');
+        Route::get('/resolve', ResolveController::class)->name('resolve');
     });
 
     Route::middleware('throttle:120,1')->group(function (): void {
+        Route::get('/catalogue/featured', [CatalogueController::class, 'featured'])->name('catalogue.featured');
         Route::get('/artists', [ArtistController::class, 'index'])->name('artists.index');
         Route::get('/artists/{slug}', [ArtistController::class, 'show'])
             ->name('artists.show')->where('slug', '[A-Za-z0-9-_]+');
