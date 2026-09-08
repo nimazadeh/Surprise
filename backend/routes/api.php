@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AlbumController;
 use App\Http\Controllers\Api\V1\ArtistController;
 use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\MetaController;
+use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\TrackController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,9 +13,9 @@ use Illuminate\Support\Facades\Route;
 | API v1 (enveloped JSON, see App\Http\Responses\ApiResponse)
 |--------------------------------------------------------------------------
 |
-| Foundation contract (Phase 1) + music catalogue reads (Phase 2).
-| Nested/detail endpoints (artist albums, album tracks, stream signing,
-| search) arrive with the catalogue-delivery phase.
+| Foundation contract (Phase 1) + music catalogue reads (Phase 2) +
+| catalogue delivery (Phase 2.5): nested endpoints and merged search.
+| Stream signing stays deferred until R-01 (licensing) resolves.
 |
 */
 
@@ -24,6 +25,11 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
 
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('/auth/me', [MeController::class, 'show'])->name('auth.me');
+    });
+
+    // Search + resolve carry their own tighter limiter (30/min).
+    Route::middleware('throttle:30,1')->group(function (): void {
+        Route::get('/search', SearchController::class)->name('search');
     });
 
     Route::middleware('throttle:120,1')->group(function (): void {
