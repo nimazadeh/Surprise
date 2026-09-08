@@ -1,0 +1,38 @@
+name: Backend tests
+
+on:
+  push:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-tests.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, curl, zip, gd, fileinfo, sqlite3, pdo_sqlite
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Lint (Pint test mode)
+        run: vendor/bin/pint --test
+
+      - name: Security gate — no hardcoded owner IDs
+        run: "! grep -rn --include='*.php' -E '(user_id|userId|\\bid\\b)\\s*===?\\s*1[^0-9]' app/ routes/ database/ || (echo 'Hardcoded user id check found' && exit 1)"
+
+      - name: Run test suite
+        run: php artisan test --parallel
