@@ -1,6 +1,6 @@
 # SHIRIN — Project Status
 
-Last updated: 2026-09-08 (Phase 1.5 audited READY, PR #1 pending).
+Last updated: 2026-09-08 (Phase 1 + 1.5 merged to main via PR #1).
 
 ## Completed
 

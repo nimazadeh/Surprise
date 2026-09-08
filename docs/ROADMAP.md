@@ -18,7 +18,7 @@
   fillable, installer username); docs synchronized.
 - Verdict: **READY for Phase 2** (see PHASE_1_5_FINAL_REPORT.md).
 
-## Phase 1 — Laravel foundation ✅ (implemented 2026-09-08, PR pending)
+## Phase 1 — Laravel foundation ✅ (implemented + merged 2026-09-08, PR #1)
 - Deliverables: `backend/` (Laravel 12: auth, RBAC, admin shell, settings/flags,
   API v1, i18n, storage, CI) + `docs/PHASE_1_{SETUP,IMPLEMENTATION,SECURITY_CHECK,TEST_REPORT,DATABASE_REPORT}.md`.
 - Exit: CI green on PR → merge. 36 tests authored; sandbox execution impossible

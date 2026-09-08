@@ -320,3 +320,16 @@ If you add a privileged music API, user authentication, a private credential, or
 ## Attribution / legal
 
 This is a fan-made, educational product experience. Shirin David’s name, music, images, and release metadata remain the property of their respective rights holders. Deezer names and assets are subject to Deezer’s terms and branding requirements. Review all relevant provider terms, image usage rights, and jurisdictional requirements before public deployment.
+
+---
+
+## Backend (Laravel platform)
+
+The `backend/` directory holds the SHIRIN platform backend (Laravel 12):
+bilingual web layer, auth + RBAC, admin shell, settings/feature flags, and the
+versioned `/api/v1` contract consumed by future phases. It deploys separately
+from this static frontend.
+
+- Setup: [`docs/PHASE_1_SETUP.md`](docs/PHASE_1_SETUP.md)
+- Architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- Status: [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md) · Handoff: [`docs/SESSION_HANDOFF.md`](docs/SESSION_HANDOFF.md)
