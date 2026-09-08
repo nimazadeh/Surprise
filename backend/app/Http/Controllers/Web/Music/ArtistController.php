@@ -5,10 +5,33 @@ namespace App\Http\Controllers\Web\Music;
 use App\Http\Controllers\Controller;
 use App\Models\Artist;
 use App\Models\SlugRedirect;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ArtistController extends Controller
 {
+    /**
+     * Public catalogue index (Phase 2.5): published artists, searchable,
+     * paginated. LIKE wildcards are neutralized inside scopeSearch.
+     */
+    public function index(Request $request): Response
+    {
+        $q = trim((string) $request->query('q', ''));
+
+        $artists = Artist::query()
+            ->published()
+            ->ordered()
+            ->withCount(['albums', 'tracks'])
+            ->search($q)
+            ->paginate($this->perPage())
+            ->withQueryString();
+
+        return response()->view('web.music.artists.index', [
+            'artists' => $artists,
+            'q' => $q,
+        ]);
+    }
+
     /**
      * SEO foundation page. Drafts behave as missing; renamed slugs 301
      * to the current URL (C-01); anything else is a friendly 404.
@@ -38,5 +61,10 @@ class ArtistController extends Controller
         }
 
         abort(404);
+    }
+
+    protected function perPage(): int
+    {
+        return max(1, (int) config('shirin.music.api_per_page', 15));
     }
 }
