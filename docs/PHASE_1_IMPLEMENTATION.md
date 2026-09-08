@@ -21,7 +21,7 @@ frontend at repo root.
 | API v1 | `/api/v1/{ping,meta/flags,auth/me}` with `{success,data,message}` envelope; Sanctum-ready |
 | i18n/SEO | `fa` (RTL) + `en` (LTR) lang files, locale middleware + switcher, legal pages (terms/privacy/takedown), per-page titles/descriptions |
 | Console | `shirin:install` (interactive OWNER, no default passwords); scheduler drains DB queue every minute |
-| CI | `.github/workflows/backend-tests.yml` (PHP 8.3, Pint, hardcoded-ID grep gate, PHPUnit) |
+| CI | `docs/ci/backend-tests.yml` → owner moves to `.github/workflows/` (PHP 8.3, Pint, hardcoded-ID grep gate, PHPUnit) |
 
 ## Files changed
 

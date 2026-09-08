@@ -14,7 +14,8 @@
 | `PasswordResetTest` | 2 | Link notification, full reset + login |
 | `EmailVerificationTest` | 2 | Notice, signed-URL verify |
 
-Run: `cd backend && php artisan test` (CI: `.github/workflows/backend-tests.yml`).
+Run: `cd backend && php artisan test` (CI: `docs/ci/backend-tests.yml` — owner copies it
+to `.github/workflows/` once; the automation token lacks the `workflows` scope).
 
 ## B. Execution status — honest disclosure ⚠️
 

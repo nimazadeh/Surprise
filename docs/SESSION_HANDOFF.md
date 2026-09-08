@@ -36,7 +36,7 @@ settings. OWNER via `php artisan shirin:install` (interactive, no defaults).
 ## Files added
 
 - `backend/` (~90 files: app, config, database, lang, resources, routes, tests…)
-- `.github/workflows/backend-tests.yml`
+- `docs/ci/backend-tests.yml` (CI template; owner activates at `.github/workflows/`)
 - `docs/PHASE_1_{SETUP,IMPLEMENTATION,SECURITY_CHECK,TEST_REPORT,DATABASE_REPORT}.md`
 - `docs/PROJECT_STATUS.md`, `docs/SESSION_HANDOFF.md` (this file)
 
