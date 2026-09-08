@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Contracts\CoverArtService;
 use App\Models\User;
+use App\Services\LocalCoverArtService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -13,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(CoverArtService::class, LocalCoverArtService::class);
     }
 
     /**
