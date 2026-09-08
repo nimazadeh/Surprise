@@ -123,7 +123,10 @@ class Artist extends Model
     }
 
     /**
-     * Admin list search (LIKE-based per C-14; no fulltext in v1).
+     * Catalogue search (LIKE-based per C-14; no fulltext in v1). LIKE
+     * wildcards in user input are neutralized by stripping — portable across
+     * MySQL/MariaDB and SQLite, whose LIKE escape rules differ. The exact
+     * slug match keeps the raw term (equality, so wildcards are literal).
      *
      * @param  Builder<Artist>  $query
      */
@@ -133,10 +136,15 @@ class Artist extends Model
             return $query;
         }
 
-        $like = '%'.$term.'%';
+        $likeable = str_replace(['%', '_'], '', $term);
+        $like = $likeable === '' ? null : '%'.$likeable.'%';
 
         return $query->where(function (Builder $q) use ($like, $term): void {
-            $q->where('name', 'like', $like)->orWhere('slug', $term);
+            if ($like !== null) {
+                $q->where('name', 'like', $like);
+            }
+
+            $q->orWhere('slug', $term);
         });
     }
 }

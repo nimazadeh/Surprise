@@ -4,6 +4,7 @@ use App\Http\Responses\ApiResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -39,6 +40,23 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return ApiResponse::error('Not found.', 'NOT_FOUND', 404);
+            }
+
+            return null;
+        });
+
+        // Rate-limited API calls keep the envelope too (Retry-After is
+        // preserved from the middleware's headers).
+        $exceptions->render(function (ThrottleRequestsException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                $response = ApiResponse::error('Too many requests. Please slow down.', 'RATE_LIMITED', 429);
+                $retryAfter = $e->getHeaders()['Retry-After'] ?? null;
+
+                if ($retryAfter !== null) {
+                    $response->headers->set('Retry-After', (string) $retryAfter);
+                }
+
+                return $response;
             }
 
             return null;

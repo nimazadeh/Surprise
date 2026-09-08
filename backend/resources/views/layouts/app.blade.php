@@ -14,6 +14,9 @@
 <header class="topbar">
     <a class="brand" href="{{ route('home') }}">SHIRIN</a>
     <nav aria-label="Primary">
+        <a href="{{ route('artists.index') }}">{{ __('nav.artists') }}</a>
+        <a href="{{ route('albums.index') }}">{{ __('nav.albums') }}</a>
+        <a href="{{ route('tracks.index') }}">{{ __('nav.tracks') }}</a>
         <a href="{{ route('locale.switch', ['locale' => app()->getLocale() === 'fa' ? 'en' : 'fa']) }}">
             {{ __('nav.language') }}: {{ app()->getLocale() === 'fa' ? 'EN' : 'FA' }}
         </a>

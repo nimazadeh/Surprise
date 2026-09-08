@@ -22,6 +22,7 @@ class SettingsSeeder extends Seeder
             ['key' => 'features.music_lab_premium_only', 'value' => '1', 'type' => Setting::TYPE_BOOLEAN, 'group' => 'features'],
             ['key' => 'features.ads', 'value' => '0', 'type' => Setting::TYPE_BOOLEAN, 'group' => 'features'],
             ['key' => 'features.user_uploads', 'value' => 'off', 'type' => Setting::TYPE_STRING, 'group' => 'features'],
+            ['key' => 'features.catalogue_provider', 'value' => '1', 'type' => Setting::TYPE_BOOLEAN, 'group' => 'features'],
 
             ['key' => 'seo.title_suffix', 'value' => 'SHIRIN', 'type' => Setting::TYPE_STRING, 'group' => 'seo'],
             ['key' => 'player.preview_limit_sec', 'value' => '30', 'type' => Setting::TYPE_INTEGER, 'group' => 'player'],

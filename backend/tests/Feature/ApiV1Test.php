@@ -35,7 +35,7 @@ class ApiV1Test extends TestCase
     {
         $this->getJson('/api/v1/meta/flags')
             ->assertOk()
-            ->assertJsonStructure(['success', 'data' => ['downloads', 'music_lab', 'ads', 'uploads']]);
+            ->assertJsonStructure(['success', 'data' => ['downloads', 'music_lab', 'ads', 'uploads', 'catalogue_provider']]);
     }
 
     public function test_unknown_api_route_returns_envelope_404(): void

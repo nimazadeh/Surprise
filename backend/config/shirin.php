@@ -38,6 +38,9 @@ return [
         'ads' => false,
         // off | registered | premium
         'user_uploads' => 'off',
+        // Dual-source catalogue: external provider enrichment (metadata
+        // only). Instantly killable without a redeploy.
+        'catalogue_provider' => true,
     ],
 
     /*
@@ -78,6 +81,43 @@ return [
         'api_per_page' => 15,
         'admin_per_page' => 20,
         'artwork_collections' => ['artists', 'albums'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | External catalogue provider (Phase 2.5, metadata only — never audio)
+    |--------------------------------------------------------------------------
+    |
+    | The owned database is the primary source; the provider enriches the
+    | catalogue. Responses are cached (a short metadata cache, never a copy).
+    | Timeouts keep a slow provider well under the frontend request budget.
+    |
+    */
+
+    'providers' => [
+        'deezer' => [
+            'enabled' => (bool) env('DEEZER_ENABLED', true),
+            'base_url' => env('DEEZER_BASE_URL', 'https://api.deezer.com'),
+            'cache_ttl' => 86400,
+            'timeout' => 4,
+            'connect_timeout' => 3,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Catalogue delivery (Phase 2.5): featured bootstrap, merged search,
+    | resolve (hash-link → SEO page), nested endpoint caps.
+    |--------------------------------------------------------------------------
+    */
+
+    'catalogue' => [
+        'featured_provider_id' => env('CATALOGUE_FEATURED_PROVIDER_ID', '7312776'),
+        'featured_limit' => 12,
+        'search_limit_default' => 12,
+        'search_limit_max' => 25,
+        'resolve_tracks_limit' => 18,
+        'nested_max' => 100,
     ],
 
     /*

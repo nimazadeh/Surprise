@@ -2,6 +2,9 @@
 
 return [
     'home' => 'خانه',
+    'artists' => 'هنرمندان',
+    'albums' => 'آلبوم‌ها',
+    'tracks' => 'ترک‌ها',
     'admin' => 'مدیریت',
     'login' => 'ورود',
     'register' => 'ثبت‌نام',

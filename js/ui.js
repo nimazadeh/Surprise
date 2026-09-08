@@ -394,7 +394,9 @@ function openTrackMenu(track) {
   const favorite = Favorites.isTrackFavorite(track.id);
   const albumAction = track.albumId ? `<button class="sheet-action" type="button" data-action="view-track-album" data-album-id="${escapeAttribute(track.albumId)}">${icon('album')} View album</button>` : '';
   const providerUrl = safeExternalUrl(track.providerUrl);
-  elements.sheet.innerHTML = `<div class="sheet-backdrop" data-dismiss-sheet><section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="track-menu-title" data-sheet-content><div class="sheet-handle"></div><header class="sheet-header"><h2 id="track-menu-title">Track options</h2><button class="icon-button icon-button--small" type="button" data-close-sheet aria-label="Close track options">${icon('close')}</button></header><div class="sheet-track">${imageMarkup(track, `Artwork for ${track.title}`)}<div class="sheet-track__text"><strong>${escapeHTML(track.title)}</strong><span>${escapeHTML(track.artistName)}</span></div></div><div class="sheet-actions"><button class="sheet-action" type="button" data-action="play-track" data-track-id="${escapeAttribute(track.id)}" data-context="menu">${icon('play')} Play now</button><button class="sheet-action" type="button" data-action="play-next" data-track-id="${escapeAttribute(track.id)}">${icon('next')} Play next</button><button class="sheet-action" type="button" data-action="add-queue" data-track-id="${escapeAttribute(track.id)}">${icon('queue')} Add to queue</button><button class="sheet-action" type="button" data-action="toggle-track-favorite" data-track-id="${escapeAttribute(track.id)}">${icon('heart')} ${favorite ? 'Remove from favorites' : 'Add to favorites'}</button>${albumAction}<button class="sheet-action" type="button" data-action="share-track" data-track-id="${escapeAttribute(track.id)}">${icon('share')} Share</button>${providerUrl ? `<a class="sheet-action" href="${escapeAttribute(providerUrl)}" target="_blank" rel="noopener noreferrer">${icon('external')} Open in Deezer</a>` : ''}</div></section></div>`;
+  // Owned records link to their backend SEO page; provider records to Deezer.
+  const externalLabel = String(track.source || '').startsWith('deezer') ? 'Open in Deezer' : 'View track page';
+  elements.sheet.innerHTML = `<div class="sheet-backdrop" data-dismiss-sheet><section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="track-menu-title" data-sheet-content><div class="sheet-handle"></div><header class="sheet-header"><h2 id="track-menu-title">Track options</h2><button class="icon-button icon-button--small" type="button" data-close-sheet aria-label="Close track options">${icon('close')}</button></header><div class="sheet-track">${imageMarkup(track, `Artwork for ${track.title}`)}<div class="sheet-track__text"><strong>${escapeHTML(track.title)}</strong><span>${escapeHTML(track.artistName)}</span></div></div><div class="sheet-actions"><button class="sheet-action" type="button" data-action="play-track" data-track-id="${escapeAttribute(track.id)}" data-context="menu">${icon('play')} Play now</button><button class="sheet-action" type="button" data-action="play-next" data-track-id="${escapeAttribute(track.id)}">${icon('next')} Play next</button><button class="sheet-action" type="button" data-action="add-queue" data-track-id="${escapeAttribute(track.id)}">${icon('queue')} Add to queue</button><button class="sheet-action" type="button" data-action="toggle-track-favorite" data-track-id="${escapeAttribute(track.id)}">${icon('heart')} ${favorite ? 'Remove from favorites' : 'Add to favorites'}</button>${albumAction}<button class="sheet-action" type="button" data-action="share-track" data-track-id="${escapeAttribute(track.id)}">${icon('share')} Share</button>${providerUrl ? `<a class="sheet-action" href="${escapeAttribute(providerUrl)}" target="_blank" rel="noopener noreferrer">${icon('external')} ${externalLabel}</a>` : ''}</div></section></div>`;
   document.body.classList.add('modal-open');
 }
 
@@ -824,7 +826,7 @@ function handleDrop(event) {
   dragQueueIndex = null;
 }
 
-async function renderAlbumRoute(route, token) {
+async function renderAlbumRoute(route, token, coldEntry = false) {
   let album = findKnownAlbum(route.params.id);
   if (!album) {
     elements.main.innerHTML = `<section class="page">${pageHeader()}<div class="content-lane">${albumSkeleton(1)}</div></section>`;
@@ -834,6 +836,11 @@ async function renderAlbumRoute(route, token) {
   if (token !== renderToken) return;
   if (!album) {
     elements.main.innerHTML = `<section class="page">${pageHeader()}${errorState('We couldn’t find this release.', 'It may no longer be available from the music provider.')}</section>`;
+    return;
+  }
+  // Cold shared links to owned releases land on the SEO page (Phase 2.5).
+  if (coldEntry && album.source === 'owned' && safeExternalUrl(album.providerUrl)) {
+    window.location.replace(album.providerUrl);
     return;
   }
   AppState.set('activeAlbum', album);
@@ -850,7 +857,7 @@ async function renderAlbumRoute(route, token) {
   }
 }
 
-async function renderTrackRoute(route, token) {
+async function renderTrackRoute(route, token, coldEntry = false) {
   let track = findKnownTrack(route.params.id);
   if (!track) {
     elements.main.innerHTML = `<section class="page">${pageHeader()}<div class="content-lane">${albumSkeleton(1)}</div></section>`;
@@ -861,10 +868,15 @@ async function renderTrackRoute(route, token) {
     elements.main.innerHTML = `<section class="page">${pageHeader()}${errorState('We couldn’t find this track.', 'It may no longer be available from the music provider.')}</section>`;
     return;
   }
+  // Cold shared links to owned tracks land on the SEO page (Phase 2.5).
+  if (coldEntry && track.source === 'owned' && safeExternalUrl(track.providerUrl)) {
+    window.location.replace(track.providerUrl);
+    return;
+  }
   elements.main.innerHTML = `<section class="page track-detail-page">${pageHeader()}<button class="button button--ghost button--small" type="button" data-route="/tracks">${icon('back')} Tracks</button><section class="album-detail__masthead content-lane"><div class="album-detail__cover">${imageMarkup(track, `Artwork for ${track.title}`, { eager: true })}</div><div class="album-detail__identity"><span class="eyebrow">Track</span><h1>${escapeHTML(track.title)}</h1><p>${escapeHTML(track.artistName)}</p><p class="album-detail__context">${escapeHTML(track.albumTitle || 'Shirin David')} · ${escapeHTML(formatDuration(track.duration))}</p><div class="album-detail__actions"><button class="button button--primary" type="button" data-action="play-track" data-track-id="${escapeAttribute(track.id)}" data-context="track">${icon('play')} Play preview</button><button class="button button--secondary" type="button" data-action="toggle-track-favorite" data-track-id="${escapeAttribute(track.id)}">${icon('heart')} Favorite</button><button class="icon-button" type="button" data-action="share-track" data-track-id="${escapeAttribute(track.id)}" aria-label="Share track">${icon('share')}</button></div></div></section><p class="provider-note">${icon('info')} Authorised preview playback is used only when supplied by the configured provider.</p></section>`;
 }
 
-export async function renderRoute(route, { keepScroll = false } = {}) {
+export async function renderRoute(route, { keepScroll = false, coldEntry = false } = {}) {
   const token = ++renderToken;
   renderSidebar();
   renderMobileNavigation();
@@ -884,13 +896,13 @@ export async function renderRoute(route, { keepScroll = false } = {}) {
       elements.main.innerHTML = renderAlbums();
       break;
     case 'album':
-      await renderAlbumRoute(route, token);
+      await renderAlbumRoute(route, token, coldEntry);
       break;
     case 'tracks':
       elements.main.innerHTML = renderTracks();
       break;
     case 'track':
-      await renderTrackRoute(route, token);
+      await renderTrackRoute(route, token, coldEntry);
       break;
     case 'search':
       elements.main.innerHTML = renderSearch();

@@ -15,6 +15,7 @@ use App\Http\Controllers\Web\LocaleController;
 use App\Http\Controllers\Web\MediaController;
 use App\Http\Controllers\Web\Music\AlbumController as MusicAlbumController;
 use App\Http\Controllers\Web\Music\ArtistController as MusicArtistController;
+use App\Http\Controllers\Web\Music\GenreController as MusicGenreController;
 use App\Http\Controllers\Web\Music\TrackController as MusicTrackController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,15 +34,23 @@ Route::get('/locale/{locale}', [LocaleController::class, 'switch'])->name('local
 
 /*
 |--------------------------------------------------------------------------
-| Music SEO foundation (Phase 2): published-only detail pages.
+| Music catalogue (Phase 2 detail pages + Phase 2.5 index pages)
 |--------------------------------------------------------------------------
 */
+Route::get('/artists', [MusicArtistController::class, 'index'])->name('artists.index');
 Route::get('/artists/{slug}', [MusicArtistController::class, 'show'])
     ->name('artists.show')->where('slug', '[A-Za-z0-9-_]+');
+
+Route::get('/albums', [MusicAlbumController::class, 'index'])->name('albums.index');
 Route::get('/albums/{slug}', [MusicAlbumController::class, 'show'])
     ->name('albums.show')->where('slug', '[A-Za-z0-9-_]+');
+
+Route::get('/tracks', [MusicTrackController::class, 'index'])->name('tracks.index');
 Route::get('/tracks/{slug}', [MusicTrackController::class, 'show'])
     ->name('tracks.show')->where('slug', '[A-Za-z0-9-_]+');
+
+Route::get('/genres/{slug}', [MusicGenreController::class, 'show'])
+    ->name('genres.show')->where('slug', '[A-Za-z0-9-_]+');
 
 /*
 |--------------------------------------------------------------------------

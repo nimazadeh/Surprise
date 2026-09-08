@@ -40,15 +40,23 @@
 - Exit: CI green on PR → merge. Static verification passed (58/58 routes,
   lang parity, zero ID-checks); PHPUnit runs in CI (sandbox has no PHP).
 
-## Phase 2.5 — Catalogue delivery (planned)
-- Deferred from the original Phase 2 scope: dual-source provider adapter
-  (the `source`/`provider_id` columns are already in place), Vanilla player
-  pointed at `/api/v1`, search API, stream signing, nested endpoints
-  (`/artists/{slug}/albums`, `/albums/{slug}/tracks`), public catalogue
-  index pages, hash-link redirects (`#/album/{id}` → `/albums/{slug}`),
-  PWA asset re-registration.
+## Phase 2.5 — Catalogue delivery ✅ (implemented 2026-09-08, PR pending)
+- Owner-approved scope (R-01 conservative: **no audio upload, no stream
+  signing, no audio processing**): dual-source provider adapter
+  (`MusicProvider` contract + Deezer HTTP adapter + `CatalogueService`
+  merge rules, flag-gated), Vanilla player pointed at `/api/v1`
+  (`ShirinApiProvider` + automatic JSONP fallback, `apiBaseUrl` deploy
+  switch), merged search API (30/min, LIKE-hardened), nested endpoints
+  (`/artists/{slug}/albums|tracks`, `/albums/{slug}/tracks`),
+  featured bootstrap + `resolve` (hash-link → SEO page), public catalogue
+  index pages (`/artists`, `/albums`, `/tracks`, `/genres/{slug}`),
+  CORS for the Pages origin, PWA cache v8, **CI workflow staged**
+  (`docs/ci/backend-tests.yml` + owner activation step — the agent
+  credential cannot push workflow files), 57 new tests (136 total).
+- Stream signing stays deferred until R-01 resolves (unchanged gate).
 - Exit: full UX flow (home→album→track→player→queue) on owned data;
-  hash-link redirects work.
+  hash-link redirects work. Verify on localhost/staging per
+  `PHASE_2_5_REPORT.md` §5 checklist → merge when CI green + approved.
 
 ## Phase 3 — User libraries
 - Playlists, favorites, reactions, history, follows; `localStorage→API` first-login merge;

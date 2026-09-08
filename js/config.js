@@ -8,7 +8,13 @@ export const CONFIG = Object.freeze({
   appName: 'SHIRIN',
   artistQuery: 'Shirin David',
   deezerArtistId: '7312776',
-  provider: 'deezer-public',
+  // 'shirin-api' points the player at the Laravel backend (/api/v1) with the
+  // Deezer JSONP transport kept as the automatic fallback. Set apiBaseUrl at
+  // deploy time (public value, no secrets); an empty string keeps the app on
+  // the direct Deezer provider exactly as before.
+  provider: 'shirin-api',
+  apiBaseUrl: '',
+  apiRequestTimeoutMs: 9000,
   deezerBaseUrl: 'https://api.deezer.com',
   requestTimeoutMs: 9000,
   // A hard UI timeout guarantees the app falls back instead of leaving a blank loader.

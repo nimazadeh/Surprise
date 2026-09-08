@@ -2,8 +2,13 @@
  * Static-only cache. Provider metadata, image CDN responses, and copyrighted preview
  * audio are intentionally never stored here. Network-first keeps deployments fresh and
  * avoids a stale app shell being mistaken for a perpetually loading player.
+ *
+ * Phase 2.5: the Laravel /api/v1 origin is never intercepted either — only same-origin
+ * GETs are handled below, so catalogue requests (owned + provider metadata, preview
+ * pass-throughs) always go straight to the network and are never cached by the app shell.
+ * The cache key bumped v7 → v8 so installed clients pick up the API-mode player.
  */
-const CACHE_NAME = 'shirin-static-v7';
+const CACHE_NAME = 'shirin-static-v8';
 const STATIC_ASSETS = [
   './',
   './index.html',
