@@ -8,6 +8,7 @@
     <title>{{ $title ?? config('app.name', 'SHIRIN') }}</title>
     <meta name="description" content="{{ $description ?? __('site.tagline') }}">
     <link rel="stylesheet" href="{{ asset('css/shirin.css') }}">
+    @stack('head')
 </head>
 <body>
 <header class="topbar">

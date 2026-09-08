@@ -80,6 +80,22 @@ Route::prefix('admin')
     ->group(function (): void {
         Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])
             ->name('dashboard');
+
+        Route::middleware('can:music.manage')->group(function (): void {
+            Route::post('/artists/{artist}/toggle', [AdminArtistController::class, 'toggle'])
+                ->name('artists.toggle');
+            Route::resource('artists', AdminArtistController::class)->except(['show']);
+
+            Route::post('/albums/{album}/toggle', [AdminAlbumController::class, 'toggle'])
+                ->name('albums.toggle');
+            Route::resource('albums', AdminAlbumController::class)->except(['show']);
+
+            Route::post('/tracks/{track}/toggle', [AdminTrackController::class, 'toggle'])
+                ->name('tracks.toggle');
+            Route::resource('tracks', AdminTrackController::class)->except(['show']);
+
+            Route::resource('genres', AdminGenreController::class)->except(['show']);
+        });
     });
 
 // Backwards-compatible alias used by early API consumers (see routes/api.php).
