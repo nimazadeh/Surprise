@@ -27,6 +27,9 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('owner') ? true : null;
         });
 
-        Gate::define('admin.access', fn (User $user): bool => $user->can('admin.access'));
+        // Direct permission check on purpose: calling $user->can() here would
+        // re-enter this same gate and recurse for users lacking the permission.
+        // checkPermissionTo() fails closed (false) when the row is missing.
+        Gate::define('admin.access', fn (User $user): bool => $user->checkPermissionTo('admin.access'));
     }
 }

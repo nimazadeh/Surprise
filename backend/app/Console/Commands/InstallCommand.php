@@ -7,6 +7,7 @@ use Database\Seeders\DatabaseSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 use function Laravel\Prompts\password;
 use function Laravel\Prompts\text;
@@ -44,15 +45,23 @@ class InstallCommand extends Command
             return self::FAILURE;
         }
 
+        // Derive a unique username: repeated installs with different emails must
+        // never collide on the unique `username` column. Status relies on the
+        // DB default ('active'); it is not fillable by design.
+        $base = strtolower(preg_replace('/[^a-z0-9_]+/i', '_', str_before($email, '@')) ?: 'owner');
+        $username = substr($base, 0, 24);
+        for ($suffix = 2; User::query()->where('username', $username)->exists(); $suffix++) {
+            $username = substr($base, 0, 24).'_'.$suffix;
+        }
+
         $user = User::query()->firstOrCreate(
             ['email' => $email],
             [
                 'name' => $name,
-                'username' => 'owner',
+                'username' => $username,
                 'password' => Hash::make($plainPassword),
                 'email_verified_at' => now(),
                 'locale' => config('app.locale', 'fa'),
-                'status' => User::STATUS_ACTIVE,
             ]
         );
 

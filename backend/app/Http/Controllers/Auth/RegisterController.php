@@ -20,10 +20,11 @@ class RegisterController extends Controller
     {
         $data = $request->safe()->except('locale');
 
+        // NOTE: `status` is intentionally absent — it is not fillable and the
+        // database default ('active') applies. Status changes are admin-only.
         $user = User::create([
             ...$data,
             'locale' => $request->validated('locale', app()->getLocale()),
-            'status' => User::STATUS_ACTIVE,
         ]);
 
         $user->assignRole('user');
