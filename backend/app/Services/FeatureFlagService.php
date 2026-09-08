@@ -68,6 +68,19 @@ class FeatureFlagService
         );
     }
 
+    /**
+     * Dual-source catalogue: external provider enrichment (metadata only).
+     * Kill switch — off means /api/v1 serves owned rows only and the
+     * provider is never called.
+     */
+    public function catalogueProviderEnabled(): bool
+    {
+        return (bool) $this->settings->get(
+            'features.catalogue_provider',
+            config('shirin.features.catalogue_provider', true)
+        );
+    }
+
     public function uploadsAllowedFor(?User $user): bool
     {
         $mode = (string) $this->settings->get(
@@ -94,6 +107,7 @@ class FeatureFlagService
             'music_lab' => $this->musicLabAvailableTo($user),
             'ads' => $this->adsEnabled(),
             'uploads' => $this->uploadsAllowedFor($user),
+            'catalogue_provider' => $this->catalogueProviderEnabled(),
         ];
     }
 

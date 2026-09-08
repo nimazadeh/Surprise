@@ -44,12 +44,21 @@ class TrackResource extends JsonResource
 
     protected function humanDuration(): ?string
     {
-        if ($this->duration_sec === null) {
+        return static::format($this->duration_sec);
+    }
+
+    /**
+     * Shared m:ss formatting (also used by provider-sourced items so both
+     * sources render identically).
+     */
+    public static function format(?int $seconds): ?string
+    {
+        if ($seconds === null) {
             return null;
         }
 
-        $seconds = (int) $this->duration_sec;
+        $total = max(0, $seconds);
 
-        return intdiv($seconds, 60).':'.str_pad((string) ($seconds % 60), 2, '0', STR_PAD_LEFT);
+        return intdiv($total, 60).':'.str_pad((string) ($total % 60), 2, '0', STR_PAD_LEFT);
     }
 }

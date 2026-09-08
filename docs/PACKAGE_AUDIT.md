@@ -1,4 +1,4 @@
-# SHIRIN — Package Audit (Phase 1.5)
+# SHIRIN — Package Audit (Phase 1.5, updated Phase 2.5)
 
 Date: 2026-09-08 · Scope: `backend/composer.json` (no lock file yet — see §4).
 
@@ -11,6 +11,7 @@ Date: 2026-09-08 · Scope: `backend/composer.json` (no lock file yet — see §4
 | `laravel/sanctum` | `^4.0` | API token guard (`auth:sanctum`); SPA-cookie ready | ✅ justified by API v1 contract; no custom token code |
 | `laravel/tinker` | `^2.10.1` | REPL for ops/debugging | ✅ standard, zero runtime footprint |
 | `spatie/laravel-permission` | `^6.0` | Roles + permissions + `HasRoles`/`HasPermissions` | ✅ per Phase 0.5 decision; replaces ~400 lines of hand-rolled RBAC |
+| `guzzlehttp/guzzle` | `^7.8` | HTTP client for `Illuminate\Support\Facades\Http` (Deezer metadata adapter, Phase 2.5) | ✅ the framework's own transport; pure PHP + ext-curl (on the host checklist); no daemon, shared-host safe; disclosed in PR body |
 
 No auth scaffolding kit (Breeze/Jetstream/Fortify) — deliberate: hand-written
 session auth keeps the dependency surface minimal and the bilingual Blade layer
@@ -38,6 +39,7 @@ style, optional docker, testing). None required on shared hosting (`--no-dev`).
 |---|---|---|---|
 | PKG-01 | Medium | **No `composer.lock` committed.** Reproducible installs impossible until one exists. Cannot be generated in this sandbox (no packagist egress). | Owner runs `composer update` on localhost, reviews, commits lock in a follow-up commit before/at merge. CI `composer install` behaves as update until then (comment added to workflow template). |
 | PKG-02 | Low | `laravel/sail` pulls docker scaffolding unused by the project. | Keep (skeleton standard, dev-only, zero prod effect). Revisit if it ever complicates installs. |
+| PKG-03 | Low | `guzzlehttp/guzzle` added in Phase 2.5 (required by the HTTP client used for provider metadata). | Accepted: framework-standard transport, curl-only, no extra PHP extensions beyond the host checklist. `composer audit` to run with the first locked install (PKG-01). |
 
 ## Verdict
 

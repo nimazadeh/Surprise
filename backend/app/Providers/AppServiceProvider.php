@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Contracts\CoverArtService;
+use App\Contracts\MusicProvider;
 use App\Models\User;
 use App\Services\LocalCoverArtService;
+use App\Services\Providers\DeezerMusicProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -16,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(CoverArtService::class, LocalCoverArtService::class);
+        $this->app->bind(MusicProvider::class, DeezerMusicProvider::class);
     }
 
     /**
