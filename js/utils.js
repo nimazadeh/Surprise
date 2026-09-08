@@ -71,11 +71,14 @@ export function makeTrackRecord(track) {
   if (!track) return null;
   return {
     id: String(track.id),
+    slug: track.slug || '',
     title: track.title || 'Untitled track',
     artistName: track.artistName || 'Shirin David',
     artistId: String(track.artistId || ''),
+    artistSlug: track.artistSlug || '',
     albumId: String(track.albumId || ''),
     albumTitle: track.albumTitle || '',
+    albumSlug: track.albumSlug || '',
     artwork: track.artwork || CONFIG.fallbackArtwork,
     artworkSmall: track.artworkSmall || track.artwork || CONFIG.fallbackArtwork,
     duration: Number(track.duration) || 0,
@@ -91,9 +94,11 @@ export function makeAlbumRecord(album) {
   if (!album) return null;
   return {
     id: String(album.id),
+    slug: album.slug || '',
     title: album.title || 'Untitled release',
     artistName: album.artistName || 'Shirin David',
     artistId: String(album.artistId || ''),
+    artistSlug: album.artistSlug || '',
     artwork: album.artwork || CONFIG.fallbackArtwork,
     artworkSmall: album.artworkSmall || album.artwork || CONFIG.fallbackArtwork,
     releaseDate: album.releaseDate || '',

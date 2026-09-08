@@ -23,6 +23,7 @@ function setCatalogue(snapshot, { status, source, error = false } = {}) {
     topTracks: snapshot.topTracks || [],
     catalogueStatus: status,
     dataSource: source,
+    catalogueOrigin: snapshot.origin || 'deezer',
     catalogueError: error
   });
 }

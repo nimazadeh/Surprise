@@ -59,10 +59,11 @@ function imageMarkup(item, alt, {
 
 function sourceLabel() {
   const state = getState();
+  const origin = state.catalogueOrigin === 'api' ? 'SHIRIN API' : 'Deezer';
   if (state.catalogueStatus === 'loading' && state.dataSource === 'fallback') return 'Loading live catalogue · demo shown';
-  if (state.catalogueStatus === 'loading' && state.dataSource === 'cache') return 'Refreshing saved metadata · Deezer';
-  if (state.dataSource === 'live') return 'Live metadata · Deezer';
-  if (state.dataSource === 'cache') return 'Saved metadata · Deezer';
+  if (state.catalogueStatus === 'loading' && state.dataSource === 'cache') return `Refreshing saved metadata · ${origin}`;
+  if (state.dataSource === 'live') return `Live metadata · ${origin}`;
+  if (state.dataSource === 'cache') return `Saved metadata · ${origin}`;
   if (state.dataSource === 'fallback') return 'Offline demo catalogue';
   return 'Preparing catalogue';
 }

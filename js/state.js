@@ -11,6 +11,7 @@ const initialState = {
   catalogueStatus: 'loading', // loading | ready | degraded | error
   catalogueError: false,
   dataSource: 'loading', // live | cache | fallback
+  catalogueOrigin: 'deezer', // api (Laravel backend) | deezer (direct provider)
   artist: null,
   albums: [],
   topTracks: [],

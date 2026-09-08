@@ -5,6 +5,7 @@ import {
   makeTrackRecord,
   readStorage,
   releaseYear,
+  safeExternalUrl,
   uniqueById,
   writeStorage
 } from './utils.js';
@@ -21,6 +22,13 @@ export class MusicProvider {
   async getLyrics() { return { status: 'unavailable', synced: false, lines: [], message: 'Lyrics are currently unavailable.' }; }
   async getPlayback() { return null; }
 }
+
+/**
+ * Raised when the Laravel API cannot be reached at all (network error, 5xx,
+ * timeout, malformed response). Clean API answers — including enveloped 404s
+ * and 429s — never raise this; the caller decides what those mean.
+ */
+export class ApiUnavailableError extends Error {}
 
 function firstArtwork(raw = {}) {
   return raw.cover_xl || raw.cover_big || raw.cover_medium || raw.cover || raw.picture_xl || raw.picture_big || raw.picture_medium || raw.picture || CONFIG.fallbackArtwork;
@@ -261,6 +269,307 @@ export class DeezerProvider extends MusicProvider {
 }
 
 /**
+ * Normalizers for the Laravel `/api/v1` player-shaped payloads. The API
+ * resources and the provider adapter share one key set, so one normalizer
+ * per type handles both sources. Owned records use their immutable slug as
+ * the record id (stable for queue/favorites persistence and deep links);
+ * provider records keep the provider id.
+ */
+function safeApiLink(value) {
+  return safeExternalUrl(value) || '';
+}
+
+function normalizeApiArtist(raw = {}) {
+  return {
+    id: String(raw.slug || raw.id || ''),
+    slug: raw.slug || '',
+    name: raw.name || 'Shirin David',
+    picture: raw.artwork || CONFIG.fallbackArtistArtwork,
+    pictureSmall: raw.artwork || CONFIG.fallbackArtistArtwork,
+    albumCount: Number(raw.albums_count) || 0,
+    fanCount: 0,
+    providerUrl: safeApiLink(raw.url),
+    source: raw.source || 'owned',
+    bio: raw.bio || 'German rapper, singer and entrepreneur.'
+  };
+}
+
+function normalizeApiAlbum(raw = {}) {
+  return makeAlbumRecord({
+    id: String(raw.slug || raw.id || ''),
+    slug: raw.slug || '',
+    title: raw.title,
+    artistName: raw.artist_name || 'Shirin David',
+    artistId: String(raw.artist_slug || raw.artist_name || ''),
+    artistSlug: raw.artist_slug || '',
+    artwork: raw.artwork || CONFIG.fallbackArtwork,
+    artworkSmall: raw.artwork || CONFIG.fallbackArtwork,
+    releaseDate: raw.release_date || '',
+    recordType: raw.type || 'album',
+    trackCount: Number(raw.tracks_count) || 0,
+    providerUrl: safeApiLink(raw.url),
+    explicit: false,
+    source: raw.source || 'owned'
+  });
+}
+
+function normalizeApiTrack(raw = {}) {
+  return makeTrackRecord({
+    id: String(raw.slug || raw.id || ''),
+    slug: raw.slug || '',
+    title: raw.title,
+    artistName: raw.artist_name || 'Shirin David',
+    artistId: String(raw.artist_slug || raw.artist_name || ''),
+    artistSlug: raw.artist_slug || '',
+    albumId: String(raw.album_slug || raw.album_title || ''),
+    albumTitle: raw.album_title || '',
+    albumSlug: raw.album_slug || '',
+    artwork: raw.artwork || CONFIG.fallbackArtwork,
+    artworkSmall: raw.artwork || CONFIG.fallbackArtwork,
+    duration: Number(raw.duration) || 0,
+    preview: raw.preview || null,
+    providerUrl: safeApiLink(raw.url),
+    explicit: false,
+    position: Number(raw.track_number) || 0,
+    source: raw.source || 'owned'
+  });
+}
+
+/**
+ * SHIRIN stays a focused artist product in provider-supplied results: keep
+ * the featured artist's items, drop unrelated provider matches. Owned rows
+ * are curated by the platform owner and are never filtered here.
+ */
+function shirinFocusFilter(items = [], kind = 'track') {
+  const needle = CONFIG.artistQuery.toLowerCase();
+  return items.filter((item) => {
+    if (String(item.source || '') !== 'deezer') return true;
+    if (kind === 'artist') return String(item.name || '').toLowerCase() === needle;
+    return String(item.artistName || '').toLowerCase() === needle;
+  });
+}
+
+/**
+ * The Laravel backend provider (Phase 2.5): the owned catalogue is the
+ * primary source and the backend merges provider metadata behind its own
+ * flag. If the API itself is unreachable, calls fall back to the direct
+ * Deezer JSONP provider so the static app never regresses.
+ */
+export class ShirinApiProvider extends MusicProvider {
+  constructor({ baseUrl = CONFIG.apiBaseUrl, timeout = CONFIG.apiRequestTimeoutMs, deezer = null } = {}) {
+    super();
+    this.baseUrl = String(baseUrl || '').replace(/\/+$/, '');
+    this.timeout = timeout;
+    this.deezer = deezer;
+    this.albumCache = new Map();
+    this.albumTracksCache = new Map();
+    this.trackCache = new Map();
+  }
+
+  get enabled() {
+    return Boolean(this.baseUrl);
+  }
+
+  async request(path, params = {}) {
+    if (!this.enabled) {
+      throw new ApiUnavailableError('The SHIRIN API base URL is not configured.');
+    }
+    const url = new URL(`${this.baseUrl}/api/v1${path}`);
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, value);
+    });
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), this.timeout);
+    try {
+      const response = await fetch(url.toString(), {
+        signal: controller.signal,
+        headers: { Accept: 'application/json' }
+      });
+      if (response.status >= 500) {
+        throw new ApiUnavailableError('The SHIRIN API is temporarily unavailable.');
+      }
+      return await response.json();
+    } catch (error) {
+      if (error instanceof ApiUnavailableError) throw error;
+      // Network failures, aborts and unparseable bodies are all "unavailable".
+      throw new ApiUnavailableError('The SHIRIN API could not be reached.');
+    } finally {
+      window.clearTimeout(timer);
+    }
+  }
+
+  /** One round trip for the home screen; throws ApiUnavailableError when unusable. */
+  async getFeaturedCatalogue() {
+    const payload = await this.request('/catalogue/featured');
+    const data = payload?.success ? payload.data : null;
+    if (!data?.artist) {
+      // No featured artist resolvable (owned empty and provider off/down):
+      // signal unusable so the fallback chain can supply the catalogue.
+      throw new ApiUnavailableError('The SHIRIN API has no featured catalogue yet.');
+    }
+    return {
+      artist: normalizeApiArtist(data.artist),
+      albums: (data.albums || []).map(normalizeApiAlbum),
+      topTracks: (data.tracks || []).map(normalizeApiTrack)
+    };
+  }
+
+  /** Hash-link resolution (#/album/{id} → owned SEO page or provider item). */
+  async resolveHash(type, id) {
+    if (!this.enabled || !type || !id) return null;
+    const payload = await this.request('/resolve', { type, provider_id: String(id) }).catch(() => null);
+    return payload?.success ? payload.data : null;
+  }
+
+  async searchArtist(query) {
+    const payload = await this.request('/search', { q: query, type: 'artist', limit: 12 });
+    const rows = payload?.success ? (payload.data?.artists || []) : [];
+    return shirinFocusFilter(rows.map(normalizeApiArtist), 'artist');
+  }
+
+  async getArtist(artistId) {
+    const direct = await this.request(`/artists/${encodeURIComponent(artistId)}`).catch(() => null);
+    if (direct?.success) return normalizeApiArtist(direct.data);
+    const resolved = await this.request('/resolve', { type: 'artist', provider_id: artistId }).catch(() => null);
+    return resolved?.data?.matched && resolved.data.item ? normalizeApiArtist(resolved.data.item) : null;
+  }
+
+  async getAlbums(artistId) {
+    const nested = await this.request(`/artists/${encodeURIComponent(artistId)}/albums`).catch(() => null);
+    if (nested?.success) return (nested.data || []).map(normalizeApiAlbum);
+    // Provider-addressed artists fall back to the direct JSONP transport.
+    return this.deezer ? this.deezer.getAlbums(artistId) : [];
+  }
+
+  async getArtistTopTracks(artistId) {
+    const nested = await this.request(`/artists/${encodeURIComponent(artistId)}/tracks`).catch(() => null);
+    if (nested?.success) return (nested.data || []).map(normalizeApiTrack);
+    const resolved = await this.request('/resolve', { type: 'artist', provider_id: artistId }).catch(() => null);
+    return resolved?.data?.matched && Array.isArray(resolved.data.tracks)
+      ? resolved.data.tracks.map(normalizeApiTrack)
+      : [];
+  }
+
+  async getAlbum(albumId) {
+    const key = String(albumId);
+    if (this.albumCache.has(key)) return this.albumCache.get(key);
+    const direct = await this.request(`/albums/${encodeURIComponent(key)}`).catch(() => null);
+    if (direct?.success) {
+      const album = normalizeApiAlbum(direct.data);
+      this.albumCache.set(key, album);
+      return album;
+    }
+    const resolved = await this.request('/resolve', { type: 'album', provider_id: key }).catch(() => null);
+    if (resolved?.data?.matched && resolved.data.item) {
+      const album = normalizeApiAlbum(resolved.data.item);
+      if (Array.isArray(resolved.data.tracks)) {
+        this.albumTracksCache.set(key, resolved.data.tracks.map(normalizeApiTrack));
+      }
+      this.albumCache.set(key, album);
+      return album;
+    }
+    return null;
+  }
+
+  async getAlbumTracks(albumId) {
+    const key = String(albumId);
+    if (this.albumTracksCache.has(key)) {
+      return { album: await this.getAlbum(key), tracks: this.albumTracksCache.get(key) };
+    }
+    const nested = await this.request(`/albums/${encodeURIComponent(key)}/tracks`).catch(() => null);
+    if (nested?.success) {
+      const albumDirect = await this.request(`/albums/${encodeURIComponent(key)}`).catch(() => null);
+      const album = albumDirect?.success ? normalizeApiAlbum(albumDirect.data) : null;
+      const tracks = (nested.data || []).map(normalizeApiTrack);
+      this.albumTracksCache.set(key, tracks);
+      if (album) this.albumCache.set(key, album);
+      return { album, tracks };
+    }
+    const resolved = await this.request('/resolve', { type: 'album', provider_id: key }).catch(() => null);
+    if (resolved?.data?.matched && resolved.data.item) {
+      const album = normalizeApiAlbum(resolved.data.item);
+      const tracks = (resolved.data.tracks || []).map(normalizeApiTrack);
+      this.albumTracksCache.set(key, tracks);
+      this.albumCache.set(key, album);
+      return { album, tracks };
+    }
+    throw new Error('Release not found');
+  }
+
+  async getTrack(trackId) {
+    const key = String(trackId);
+    if (this.trackCache.has(key)) return this.trackCache.get(key);
+    const direct = await this.request(`/tracks/${encodeURIComponent(key)}`).catch(() => null);
+    if (direct?.success) {
+      const track = normalizeApiTrack(direct.data);
+      this.trackCache.set(key, track);
+      return track;
+    }
+    const resolved = await this.request('/resolve', { type: 'track', provider_id: key }).catch(() => null);
+    if (resolved?.data?.matched && resolved.data.item) {
+      const track = normalizeApiTrack(resolved.data.item);
+      this.trackCache.set(key, track);
+      return track;
+    }
+    return null;
+  }
+
+  async search(query) {
+    const payload = await this.request('/search', { q: query, limit: CONFIG.searchLimit }).catch(() => null);
+    const data = payload?.success ? payload.data : null;
+    if (!data) throw new Error('Search could not be completed.');
+    return {
+      tracks: shirinFocusFilter((data.tracks || []).map(normalizeApiTrack), 'track'),
+      albums: shirinFocusFilter((data.albums || []).map(normalizeApiAlbum), 'album'),
+      artists: shirinFocusFilter((data.artists || []).map(normalizeApiArtist), 'artist')
+    };
+  }
+
+  async getLyrics() {
+    // Same honest state as the direct provider: no licensed lyric text exists.
+    return {
+      status: 'unavailable',
+      synced: false,
+      lines: [],
+      message: 'Lyrics are currently unavailable. No licensed lyric source is configured.'
+    };
+  }
+
+  async getPlayback(track) {
+    if (!track?.id) return null;
+    // Owned tracks have no audio until licensing resolves (R-01).
+    if (track.source === 'owned') return null;
+    try {
+      const resolved = await this.request('/resolve', { type: 'track', provider_id: track.id }).catch(() => null);
+      const item = resolved?.data?.matched ? resolved.data.item : null;
+      if (item?.preview) {
+        const refreshed = normalizeApiTrack(item);
+        this.trackCache.set(String(track.id), refreshed);
+        return {
+          type: 'preview',
+          url: refreshed.preview,
+          duration: 30,
+          label: '30-second authorized Deezer preview',
+          track: { ...track, ...refreshed }
+        };
+      }
+    } catch (error) {
+      // Fall through to the cached preview, if any.
+    }
+    if (track.preview) {
+      return {
+        type: 'preview',
+        url: track.preview,
+        duration: 30,
+        label: '30-second authorized Deezer preview',
+        track
+      };
+    }
+    return null;
+  }
+}
+
+/**
  * Small, deliberately separate offline demo catalogue. It only exists for graceful layout
  * and local feature testing when a live provider cannot be reached; it contains no audio.
  */
@@ -337,8 +646,12 @@ class FallbackProvider extends MusicProvider {
   }
 }
 
-const liveProvider = new DeezerProvider();
+const deezerFallbackProvider = new DeezerProvider();
+const apiProvider = new ShirinApiProvider({ deezer: deezerFallbackProvider });
 const fallbackProvider = new FallbackProvider();
+// API-first when a base URL is configured; the direct JSONP provider is the
+// automatic fallback and the default when apiBaseUrl is empty.
+const liveProvider = apiProvider.enabled ? apiProvider : deezerFallbackProvider;
 
 function cacheSnapshot(snapshot) {
   writeStorage(STORAGE_KEYS.catalogue, { savedAt: Date.now(), ...snapshot });
@@ -349,18 +662,47 @@ export function getCachedCatalogue() {
   if (!cached?.artist || !Array.isArray(cached.albums) || !Array.isArray(cached.topTracks)) return null;
   const age = Date.now() - Number(cached.savedAt || 0);
   if (age > CONFIG.catalogueCacheTtlMs) return null;
-  return { artist: cached.artist, albums: cached.albums, topTracks: cached.topTracks, source: 'cache' };
+  return {
+    artist: cached.artist,
+    albums: cached.albums,
+    topTracks: cached.topTracks,
+    source: 'cache',
+    origin: cached.origin || 'deezer'
+  };
 }
 
 export const MusicAPI = {
   provider: liveProvider,
   fallbackProvider,
+  apiProvider,
+
+  /** True when the app is wired to the Laravel backend (Phase 2.5). */
+  get apiEnabled() {
+    return apiProvider.enabled;
+  },
 
   async bootstrapCatalogue() {
-    const artist = await liveProvider.resolveArtist();
+    if (apiProvider.enabled) {
+      try {
+        const featured = await apiProvider.getFeaturedCatalogue();
+        const snapshot = {
+          artist: featured.artist,
+          albums: featured.albums,
+          topTracks: featured.topTracks,
+          origin: 'api'
+        };
+        cacheSnapshot(snapshot);
+        return { ...snapshot, source: 'live' };
+      } catch (error) {
+        // API unavailable or empty: fall through to the direct provider
+        // under the same watchdog. Never leave the catalogue empty by design.
+      }
+    }
+
+    const artist = await deezerFallbackProvider.resolveArtist();
     const [albums, topTracks] = await Promise.all([
-      liveProvider.getAlbums(artist.id),
-      liveProvider.getArtistTopTracks(artist.id)
+      deezerFallbackProvider.getAlbums(artist.id),
+      deezerFallbackProvider.getArtistTopTracks(artist.id)
     ]);
     // The artist releases endpoint omits album-level track counts. Hydrate only the
     // full-length / EP records (usually a very small set); singles are explicitly
@@ -368,12 +710,12 @@ export const MusicAPI = {
     const countDetails = await Promise.all(albums
       .filter((album) => !album.trackCount && album.recordType !== 'single')
       .map(async (album) => {
-        try { return await liveProvider.getAlbum(album.id); }
+        try { return await deezerFallbackProvider.getAlbum(album.id); }
         catch (error) { return album; }
       }));
     const countsById = new Map(countDetails.map((album) => [String(album.id), album.trackCount]));
     const enrichedAlbums = albums.map((album) => ({ ...album, trackCount: countsById.get(String(album.id)) || album.trackCount }));
-    const snapshot = { artist, albums: enrichedAlbums, topTracks };
+    const snapshot = { artist, albums: enrichedAlbums, topTracks, origin: 'deezer' };
     cacheSnapshot(snapshot);
     return { ...snapshot, source: 'live' };
   },
@@ -396,9 +738,17 @@ export const MusicAPI = {
   async getTrack(trackId, source = 'deezer-public') { return source === 'fallback' || String(trackId).startsWith('fallback-') ? fallbackProvider.getTrack(trackId) : liveProvider.getTrack(trackId); },
   async search(query) {
     try { return await liveProvider.search(query); }
-    catch (error) { return fallbackProvider.search(query); }
+    catch (error) {
+      // In API mode the direct provider gets one chance before the demo catalogue.
+      if (apiProvider.enabled) {
+        try { return await deezerFallbackProvider.search(query); }
+        catch (nestedError) { /* fall through */ }
+      }
+      return fallbackProvider.search(query);
+    }
   },
   async getLyrics(track) { return (track?.source === 'fallback' ? fallbackProvider : liveProvider).getLyrics(track?.id); },
   async getPlayback(track) { return (track?.source === 'fallback' ? fallbackProvider : liveProvider).getPlayback(track); },
+  async resolveHashItem(type, id) { return apiProvider.resolveHash(type, id); },
   releaseYear
 };
