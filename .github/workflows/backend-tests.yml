@@ -4,21 +4,20 @@ on:
   push:
     branches:
       - main
-
   pull_request:
     branches:
       - main
 
+defaults:
+  run:
+    working-directory: backend
 
 jobs:
   laravel-tests:
 
+    name: Laravel Tests
+
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: backend
-
 
     steps:
 
@@ -30,28 +29,49 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, dom, fileinfo, mysql
+          extensions: mbstring, dom, curl, fileinfo, sqlite3, pdo_sqlite
           coverage: none
 
 
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-
+
+
       - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
 
-      - name: Prepare environment
+      - name: Prepare Laravel environment
         run: |
           cp .env.example .env
           php artisan key:generate
 
 
-      - name: Create database
+      - name: Configure SQLite database
         run: |
           touch database/database.sqlite
 
+          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+          sed -i '/DB_HOST=/d' .env
+          sed -i '/DB_PORT=/d' .env
+          sed -i '/DB_DATABASE=/d' .env
 
-      - name: Run migrations
+          echo "DB_DATABASE=database/database.sqlite" >> .env
+
+
+      - name: Run database migrations
         run: php artisan migrate --force
 
 
-      - name: Run tests
+      - name: Run Laravel tests
         run: php artisan test
