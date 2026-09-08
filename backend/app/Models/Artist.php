@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\CoverArtService;
 use App\Models\Concerns\HasSlug;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

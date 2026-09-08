@@ -106,6 +106,14 @@ class Album extends Model
     }
 
     /**
+     * Public proxy URL for the album cover (presentation helper).
+     */
+    public function getCoverUrlAttribute(): ?string
+    {
+        return app(CoverArtService::class)->url($this->cover);
+    }
+
+    /**
      * @param  Builder<Album>  $query
      */
     public function scopePublished(Builder $query): Builder
