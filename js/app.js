@@ -4,7 +4,7 @@ import { CONFIG } from './config.js';
 import { PlayerController } from './player.js';
 import { Router } from './router.js';
 import { AppState, setOnlineStatus } from './state.js';
-import { sleep } from './utils.js';
+import { safeExternalUrl, sleep } from './utils.js';
 import { UI } from './ui.js';
 
 // Mark the interactive app as booted. The tiny HTML fallback remains available if modules fail to load.
@@ -99,7 +99,26 @@ function refreshContentAfterCatalogue() {
   UI.renderRoute(contentRoute, { keepScroll: true });
 }
 
-function handleRoute(route) {
+/**
+ * Shareable hash links (#/album/{id}, #/track/{id}, #/artist/{id}) entered
+ * cold — a shared URL or a reload — land on the backend SEO page when the
+ * target is owned catalogue content (Phase 2.5). In-app navigation never
+ * redirects mid-session, and provider-only items render in-app as before.
+ */
+function maybeRedirectColdHashLink(route, initial) {
+  if (!initial || !MusicAPI.apiEnabled) return;
+
+  if (route.name === 'artist' && route.params?.id) {
+    MusicAPI.getArtist(route.params.id)
+      .then((artist) => {
+        const url = safeExternalUrl(artist?.providerUrl);
+        if (artist?.source === 'owned' && url) window.location.replace(url);
+      })
+      .catch(() => {});
+  }
+}
+
+function handleRoute(route, { initial = false } = {}) {
   const current = AppState.get();
   if (route.name === 'player') {
     AppState.patch({ route, playerExpanded: true });
@@ -110,8 +129,9 @@ function handleRoute(route) {
       playerExpanded: false,
       playerPanel: null
     });
+    maybeRedirectColdHashLink(route, initial);
   }
-  UI.renderRoute(route);
+  UI.renderRoute(route, { coldEntry: initial });
 }
 
 function dismissSplash() {

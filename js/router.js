@@ -14,6 +14,7 @@ export function parseRoute(hash = window.location.hash) {
 
   if (name === 'album' && segments[1]) return { name: 'album', params: { id: decodeURIComponent(segments[1]) }, query };
   if (name === 'track' && segments[1]) return { name: 'track', params: { id: decodeURIComponent(segments[1]) }, query };
+  if (name === 'artist' && segments[1]) return { name: 'artist', params: { id: decodeURIComponent(segments[1]) }, query };
   if (['home', 'search', 'artist', 'albums', 'tracks', 'library', 'favorites', 'recent', 'player'].includes(name)) {
     return { name, params: {}, query };
   }
@@ -24,12 +25,14 @@ export const Router = {
   start(onChange) {
     changeHandler = onChange;
     window.addEventListener('hashchange', () => this.notify());
-    this.notify();
+    // The first notify is a cold entry (shared link / reload): the only
+    // moment hash-link redirects to backend SEO pages may fire.
+    this.notify({ initial: true });
   },
 
-  notify() {
+  notify({ initial = false } = {}) {
     const route = parseRoute();
-    if (changeHandler) changeHandler(route);
+    if (changeHandler) changeHandler(route, { initial });
   },
 
   navigate(path, { replace = false } = {}) {
