@@ -42,7 +42,9 @@ MySQL + SQLite compatible (no fulltext per C-14):
   `lyrics_available` flag/status + source/provider/seo + soft deletes.
 - `slug_redirects` — C-01 table (unique per type + old slug).
 
-Post-migrate: **22 tables**. Rollback: `migrate:rollback --step=5`.
+Post-migrate: **20 data tables** (21 with the `migrations` bookkeeping table;
+see the inventory note in `PHASE_2_DATABASE_DESIGN.md` §1).
+Rollback: `migrate:rollback --step=5`.
 Seeders: + `GenreSeeder` (8 idempotent base genres) in `DatabaseSeeder`.
 Full schema, indexes, FK rationale, and Phase 0 deviations:
 `docs/PHASE_2_DATABASE_DESIGN.md`.
@@ -119,7 +121,7 @@ migrations reversible, zero frontend files touched.
 
 Localhost/staging manual checklist (post-merge):
 
-- [ ] `composer setup` → migrate/seed clean on MySQL (22 tables, 8 genres)
+- [ ] `composer setup` → migrate/seed clean on MySQL (20 data tables, 8 genres)
 - [ ] Editor login → artists/albums/tracks/genres CRUD + search + toggles
 - [ ] Cover upload → visible in admin + on SEO pages + via `/media/covers/*`
 - [ ] Slug rename in admin → old URL 301s to the new one

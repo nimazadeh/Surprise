@@ -24,8 +24,9 @@ Last updated: 2026-09-08 (Phase 2 implemented, PR pending).
 
 ## Database (after `migrate --seed`)
 
-22 tables: Phase 1 set (17) + `genres`, `artists`, `albums`, `tracks`,
-`slug_redirects`. Seeders: roles+permissions, settings, genres (8 base rows).
+20 data tables (21 with `migrations` bookkeeping): Phase 1 set (15) +
+`genres`, `artists`, `albums`, `tracks`, `slug_redirects`.
+Seeders: roles+permissions, settings, genres (8 base rows).
 
 ## Packages
 

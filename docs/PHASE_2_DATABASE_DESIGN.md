@@ -19,7 +19,11 @@ SQLite-compatible for CI.
 | 11 | `2026_09_08_000006_create_tracks_table` | `tracks` + FKs → albums/artists/genres | ✅ drop |
 | 12 | `2026_09_08_000007_create_slug_redirects_table` | `slug_redirects` (C-01) | ✅ drop |
 
-Post-migrate total: **22 tables** (17 + 5). Rollback plan per release:
+Post-migrate total: **20 data tables** (15 pre-existing + 5 new), 21 including
+Laravel's `migrations` bookkeeping table. (The Phase 1 report's "17" counts one
+table too many — the profile-fields migration ALTERs `users` but creates none;
+verified pre-existing inventory: 9 skeleton/settings + 5 Spatie + 1 Sanctum = 15.)
+Rollback plan per release:
 `php artisan migrate:rollback --step=5` removes exactly the Phase 2 set, in
 reverse dependency order (redirects → tracks → albums → artists → genres).
 

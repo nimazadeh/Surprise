@@ -50,8 +50,9 @@ Merge after CI green + approval.
 
 ## Database
 
-22 tables post-migrate (17 Phase 1 + 5 Phase 2; see
-PHASE_2_DATABASE_DESIGN.md). Seeders: roles, settings, genres (8 rows).
+20 data tables post-migrate (21 with bookkeeping; 15 Phase 1 + 5 Phase 2 —
+see the inventory note in PHASE_2_DATABASE_DESIGN.md). Seeders: roles,
+settings, genres (8 rows).
 OWNER via `php artisan shirin:install` (interactive, no defaults).
 
 ## Files added (Phase 2)
