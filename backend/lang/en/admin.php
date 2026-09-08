@@ -1,0 +1,35 @@
+<?php
+
+return [
+    'title' => 'Administration',
+    'dashboard' => 'Dashboard',
+    'welcome' => 'Welcome to the SHIRIN admin foundation.',
+    'stats' => [
+        'users' => 'Users',
+        'verified' => 'Verified',
+        'banned' => 'Banned',
+        'roles' => 'Roles',
+    ],
+    'flags_title' => 'Feature flags (live)',
+    'phase_badge' => 'Phase :phase',
+    'coming_soon' => 'Coming in a later phase',
+    'back_to_site' => 'Back to site',
+    'nav' => [
+        'overview' => 'Overview',
+        'dashboard' => 'Dashboard',
+        'music' => 'Music',
+        'artists' => 'Artists',
+        'albums' => 'Albums',
+        'tracks' => 'Tracks',
+        'media' => 'Media',
+        'uploads' => 'Uploads',
+        'audience' => 'Audience',
+        'users' => 'Users',
+        'advertisements' => 'Advertisements',
+        'system' => 'System',
+        'premium' => 'Premium tools',
+        'analytics' => 'Analytics',
+        'audit' => 'Audit logs',
+        'settings' => 'Settings',
+    ],
+];
