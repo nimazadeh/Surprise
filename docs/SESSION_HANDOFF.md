@@ -1,7 +1,16 @@
 # SHIRIN — Session Handoff (after Phase 1.5)
 
-> Read this + `git log` + `docs/ROADMAP.md` before any new session. No chat
+> Read this + `git log` + `docs/ROADMAP.md` +
+> `docs/DEVELOPMENT_WORKFLOW.md` before any new session. No chat
 > history is assumed.
+
+## Pre-Phase 2 update (2026-09-08)
+
+- Added `docs/DEVELOPMENT_WORKFLOW.md`: the binding global development
+  workflow (GitHub branching, commit, PR/merge-gate, review, release, and
+  docs definition-of-done rules). Read it before starting Phase 2.
+- Docs-only change on branch `arena/01a08237-surprise`; no application
+  code, database, or package changes.
 
 ## Current project state
 
