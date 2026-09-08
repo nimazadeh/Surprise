@@ -30,11 +30,25 @@
   settings/flags system; SEO routes with placeholder data; `/up` + deploy to shared host.
 - Exit: login→logout works on production URL in both languages; flags toggle a demo module.
 
-## Phase 2 — Catalogue + player on API
-- Artists/albums/tracks/genres CRUD (admin) + public SEO pages + `/api/v1` read endpoints;
-  dual-source model (`owned|deezer`); existing Vanilla player pointed at API with same
-  record shape; search API; stream signing; PWA assets re-registered.
-- Exit: full UX flow (home→album→track→player→queue) on owned+provider data; hash-link redirects work.
+## Phase 2 — Music Core Domain Foundation ✅ (implemented 2026-09-08, PR pending)
+- Delivered: catalogue migrations (genres/artists/albums/tracks +
+  slug_redirects), Eloquent domain, admin CMS (CRUD + toggles + covers), 8
+  Form Requests, `/api/v1` read endpoints (player-shaped resources), SEO
+  detail pages (`/artists|/albums|/tracks/{slug}` + 301s + JSON-LD),
+  cover-art service + media proxy, factories + genre seeds, 43 tests,
+  `docs/PHASE_2_{DATABASE_DESIGN,MUSIC_CORE_REPORT}.md`.
+- Exit: CI green on PR → merge. Static verification passed (58/58 routes,
+  lang parity, zero ID-checks); PHPUnit runs in CI (sandbox has no PHP).
+
+## Phase 2.5 — Catalogue delivery (planned)
+- Deferred from the original Phase 2 scope: dual-source provider adapter
+  (the `source`/`provider_id` columns are already in place), Vanilla player
+  pointed at `/api/v1`, search API, stream signing, nested endpoints
+  (`/artists/{slug}/albums`, `/albums/{slug}/tracks`), public catalogue
+  index pages, hash-link redirects (`#/album/{id}` → `/albums/{slug}`),
+  PWA asset re-registration.
+- Exit: full UX flow (home→album→track→player→queue) on owned data;
+  hash-link redirects work.
 
 ## Phase 3 — User libraries
 - Playlists, favorites, reactions, history, follows; `localStorage→API` first-login merge;
