@@ -1,114 +1,101 @@
-# SHIRIN — Session Handoff (after Phase 2)
+# Session Handoff (Phase 2.5)
 
-> Read this + `git log` + `docs/ROADMAP.md` +
-> `docs/DEVELOPMENT_WORKFLOW.md` before any new session. No chat
-> history is assumed.
+Date: 2026-09-08 · Repo: https://github.com/nimazadeh/Surprise ·
+Base: `main` @ `2551e85` (PR #2 squash-merge).
 
-## Current project state
+## What happened this session
 
-Phase 1 + 1.5 merged to `main` (`8c03f13`, PR #1 squash-merged 2026-09-08).
-Phase 2 implemented on branch `arena/01a08237-surprise` (stands in for
-`phase-2-music-core`), pushed, PR open (`Phase 2: Music Core Domain
-Foundation`, base `main`) — it also carries the two pre-Phase 2 workflow-doc
-commits (separate docs PR impossible on the locked single branch).
-Merge after CI green + approval.
+Phase 2.5 (Catalogue delivery) was implemented per the owner-approved
+`docs/PHASE_2_5_PLAN.md` — 13 commits on branch
+**`arena/01a0826b-surprise`** (this sandbox session's locked branch; it
+stands in for `phase-2-5-catalogue-delivery`, see DEVELOPMENT_WORKFLOW §2):
 
-## Completed
+```text
+5c94cd2 docs(phase-2.5): add implementation plan (pre-approval draft)
+(new)   ci: stage backend test workflow for activation
+9d6fe73 feat(api): add CORS allowlist for the static frontend
+64ca0cb feat(provider): add music provider contract and Deezer adapter
+f144217 chore: remove stray empty file from a shell quoting slip
+6f44dcb feat(api): add nested catalogue endpoints
+e849408 feat(api): add merged search endpoint
+f15b356 feat(api): add featured catalogue and resolve endpoints
+ad30290 feat(web): add public catalogue index pages
+c48d9d6 feat(web): point the player at the Laravel API
+30292d2 feat(web): add hash-link redirects to catalogue pages
+48e6968 feat(pwa): bump service-worker cache and re-register assets
+(new)   docs: add Phase 2.5 report and setup guide, sync living docs
+```
 
-- Static SHIRIN frontend (pre-existing, untouched): premium Vanilla music UX.
-- Phase 0 docs (9 files) + Phase 0.5 review docs (5 files).
-- Phase 1: `backend/` Laravel 12 (auth, RBAC, admin shell, settings/flags,
-  API v1, fa/en i18n, legal pages, storage foundation, CI workflow).
-- Phase 1 reports: SETUP, IMPLEMENTATION, SECURITY_CHECK, TEST_REPORT,
-  DATABASE_REPORT.
-- Pre-Phase 2: `docs/DEVELOPMENT_WORKFLOW.md` (binding GitHub workflow).
-- Phase 2: Music Core Domain Foundation — catalogue DB (genres/artists/
-  albums/tracks/slug_redirects), Eloquent domain + `HasSlug`, admin CMS
-  (CRUD + toggles + covers), 8 Form Requests, API v1 reads, SEO detail
-  pages + 301s + JSON-LD, `CoverArtService` + cover proxy, factories +
-  `GenreSeeder`, 43 new tests.
-- Phase 2 reports: `PHASE_2_DATABASE_DESIGN.md`, `PHASE_2_MUSIC_CORE_REPORT.md`
-  (incl. test + security sections per workflow §10).
+(Hashes from before the final history rewrite: the CI commit was
+restructured after GitHub rejected the push — the sandbox credential
+cannot push files under `.github/workflows/` — so the workflow stays
+staged at `docs/ci/backend-tests.yml` awaiting the owner's one-command
+activation; see PHASE_2_5_REPORT.md §2 / SETUP §4. Run `git log --oneline
+main..HEAD` for current hashes.)
 
-## Current architecture (decisions that bind future work)
+Everything is additive: **zero migrations**, `index.html`/`css/`/`assets/`
+untouched, `MusicProvider`-compatible JSONP path intact, `apiBaseUrl: ''`
+default = unchanged Pages behavior. Full record:
+`docs/PHASE_2_5_REPORT.md` (+ SETUP deltas).
 
-- Repo = static frontend (root, GitHub Pages) + Laravel backend (`backend/`, PHP host).
-- No build step: Vite removed; plain `public/css/shirin.css` (additive Phase 2 styles).
-- RBAC = Spatie Permission; roles owner/admin/editor/premium_user/user (5 in P1;
-  content/ads split in P4). NEVER `user_id == 1` (CI grep gate).
-- Owner bypass = `Gate::before` + `hasRole('owner')`.
-- API envelope `{success,data,message[,code,errors]}`; versioned `/api/v1`.
-- Flags single source = `settings` table via `FeatureFlagService`.
-- Default locale `fa` (RTL), fallback `en`.
-- Music: status draft/published/archived; slug route keys, Latin-only,
-  immutable after publish, never reused (renames 301); single `language`
-  fa/en (translations later); `genre_id` primary FK (pivot later);
-  nullable `album_id` (loose singles); `source`/`provider_id` dual-source
-  ready; music writes behind `music.manage` (middleware + Form Requests;
-  model policies in P4); covers on `media` disk via `CoverArtService`,
-  served by `/media/covers/*` proxy.
+## What the NEXT session must do (in order)
 
-## Database
+1. **Open the PR** `Phase 2.5: Catalogue delivery` from
+   `arena/01a0826b-surprise` → `main` (body from PHASE_2_5_REPORT.md;
+   disclose: session-branch stands in per workflow §2, plan commit rides
+   the PR, guzzle added (PKG-03), CI staged not active — owner activates
+   post-merge, composer.lock pending, suite never executed anywhere yet).
+   Squash-merge with Co-authored-by trailer (PR #1/#2 precedent).
+   **Merge only after the owner ran `php artisan test` locally AND
+   approved.**
+2. **Owner actions after merge** (remind in PR): run the suite locally on
+   MySQL (first-ever execution — highest-risk spot:
+   `CatalogueService::ownedModelByProviderId` calls `withTrashed()`;
+   models confirmed to use SoftDeletes but the path only proves out at
+   runtime — `test_resolve_owned_twin_returns_seo_url` exercises it; fix
+   forward on a follow-up branch if anything fails); activate CI (copy
+   `docs/ci/backend-tests.yml` → `.github/workflows/`, SETUP §4 — needs a
+   credential with `workflows` permission); `composer update` on localhost
+   + commit `composer.lock` (now includes guzzle — PKG-01/03); set
+   `FRONTEND_ORIGINS` (add Pages URL) on the deployed backend; flip
+   `js/config.js` `apiBaseUrl` to the public backend URL when it exists;
+   seed an owned `is_featured` artist via the admin CMS.
+3. **Manual verification** on localhost/staging per PHASE_2_5_REPORT.md §5
+   checklist (home→album→track→player→queue on owned data, redirects,
+   429s, fallbacks, RTL, SW v8).
 
-20 data tables post-migrate (21 with bookkeeping; 15 Phase 1 + 5 Phase 2 —
-see the inventory note in PHASE_2_DATABASE_DESIGN.md). Seeders: roles,
-settings, genres (8 rows).
-OWNER via `php artisan shirin:install` (interactive, no defaults).
+## Phase 3 preview (next feature phase — needs its own plan + approval)
 
-## Files added (Phase 2)
+User libraries: playlists/favorites/reactions/history/follows, first-login
+`localStorage→API` merge (frontend owned ids are already immutable slugs —
+designed for this), profiles, notifications skeleton. Stream signing
+stays gated on R-01 (unchanged; `ShirinApiProvider.getPlayback` is the
+single choke point when it resolves).
 
-- `backend/database/migrations/2026_09_08_00000{3..7}_*` (genres, artists,
-  albums, tracks, slug_redirects)
-- `backend/app/Models/{Artist,Album,Track,Genre,SlugRedirect}.php`,
-  `Models/Concerns/HasSlug.php`
-- `backend/app/Contracts/CoverArtService.php`,
-  `backend/app/Services/LocalCoverArtService.php`
-- `backend/app/Http/Requests/{Store,Update}{Artist,Album,Track,Genre}Request.php`
-- `backend/app/Http/Controllers/Admin/{Artist,Album,Track,Genre}Controller.php`
-- `backend/app/Http/Controllers/Api/V1/{Artist,Album,Track}Controller.php`,
-  `backend/app/Http/Resources/{Artist,Album,Track}Resource.php`
-- `backend/app/Http/Controllers/Web/Music/{Artist,Album,Track}Controller.php`,
-  `Web/MediaController.php`
-- `backend/resources/views/admin/{artists,albums,tracks,genres}/*` (17 files),
-  `web/music/*/*` (3 files)
-- `backend/lang/{en,fa}/music.php`, `database/factories/*` (4),
-  `database/seeders/GenreSeeder.php`, `tests/Feature/Music/*` (4)
-- `docs/PHASE_2_{DATABASE_DESIGN,MUSIC_CORE_REPORT}.md`
+## Conventions re-learned this session (carry forward)
 
-## Files modified (Phase 2)
+- **GitHub App token in this sandbox cannot push `.github/workflows/**`**
+  (push rejected: missing `workflows` permission) — stage workflow files
+  elsewhere (e.g. `docs/ci/`) and hand activation to the owner; never
+  burn time trying to push around it.
+- `cd backend` fails when already inside `backend/` — prefer repo-root
+  paths; beware python fallbacks silently running on the wrong path.
+- No PHP in the sandbox — static checks only (brace balance, route/view/
+  lang/import sweeps, ID grep). Frontend CAN be runtime-smoked with node
+  (`node --check` + stubbed-fetch smoke scripts) — do this, it caught
+  nothing this time but is cheap insurance.
+- Read every blade/config file before editing (one `edit_file` failed on
+  an assumed line that didn't exist).
+- Tests never touch the network: `Http::fake` (500→200 fake + retry
+  counting for attempt assertions) or a `FakeMusicProvider` instance
+  double. `$this->json('GET', $uri, $params)` for query strings.
+- Raw `"""` in bash here-docs bites; quote heredoc delimiters.
+- Deep-link payload shape lives in
+  `backend/app/Services/CatalogueService.php::resolve()` — keep
+  `js/api.js` normalizers in sync (`normalizeApiArtist/Album/Track`).
 
-- `backend/routes/{web,api}.php` (music routes; incl. `MetaController`
-  import fix), `config/shirin{,_nav}.php`, `Providers/AppServiceProvider.php`
-  (cover binding), `DashboardController` + dashboard view (music stats),
-  `layouts/app.blade.php` (`@stack('head')`), `lang/*/admin.php`,
-  `public/css/shirin.css` (additive), `DatabaseSeeder`
-- `docs/{ROADMAP,PROJECT_STATUS,SESSION_HANDOFF}.md` — frontend files: NONE.
+## Open items (owner-side)
 
-## Packages
-
-Phase 2 added NONE. See PROJECT_STATUS.md. `vendor/` intentionally NOT
-committed (`.gitignore`); `composer.lock` still pending (PKG-01, owner action).
-
-## Tests
-
-79 tests total (36 P1 + 43 P2: 15 model / 14 admin / 8 API / 6 web).
-Static verification passed (58/58 route targets, 30/30 views, 45/45 route
-names, lang parity, zero ID-checks). PHPUnit execution happens in CI
-(sandbox has no PHP runtime / packagist egress). Do not merge red.
-
-## Next phase
-
-Phase 2.5 — Catalogue delivery (planned, see ROADMAP.md): provider adapter,
-player-on-API, search API, stream signing, nested endpoints, catalogue index
-pages, hash-link redirects, PWA re-register. Then Phase 3 — User libraries.
-Requires: CI green + Phase 2 PR merge first. Requires: R-01 licensing
-decision before owned audio.
-
-## Warnings
-
-- Branch lock: this environment permits work ONLY on `arena/01a08237-surprise`.
-  It plays the role of `phase-2-music-core`; do not create other branches here.
-- `username` on users is unique non-nullable (fresh-install assumption).
-- Spatie/Sanctum migrations auto-load from vendor — never duplicate them.
-- Same-file parallel edits are unsafe in this environment (last-write-wins):
-  apply multiple edits to one file sequentially (see Phase 2 fix commit).
+- R-01 music licensing (blocks owned audio publishing — untouched).
+- `composer.lock` (PKG-01). Backend public origin + Pages URL.
+- Optional: seed real Shirin David owned catalogue for the demo.

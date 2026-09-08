@@ -3,8 +3,9 @@
 Date: 2026-09-08 · Branch: `arena/01a0826b-surprise` (stands in for
 `phase-2-5-catalogue-delivery` per `docs/DEVELOPMENT_WORKFLOW.md` §2).
 
-> **STATUS: DRAFT — awaiting owner approval. No code has been written.**
-> This document is the scope contract for the phase (workflow §5, merge
+> **STATUS: APPROVED 2026-09-08 and IMPLEMENTED — see
+> `docs/PHASE_2_5_REPORT.md` (deviations recorded in its §9).** This
+> document remains the scope contract for the phase (workflow §5, merge
 > gate 4: no scope expansion beyond the approved plan). It was drafted from
 > `SESSION_HANDOFF.md` + `git log` + `ROADMAP.md` + the Phase 2 reports,
 > after the owner fixed the scope on 2026-09-08 (§1).

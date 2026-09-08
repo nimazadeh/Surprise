@@ -13,9 +13,9 @@ SHIRIN is a deliberately framework-free music product built with semantic HTML, 
 ## Highlights
 
 - Cinematic mobile-first home, artist, albums, album detail, tracks, search, library, queue, lyrics, and full-player experiences
-- Live Shirin David artist, release, track, artwork, and 30-second preview metadata from the public Deezer catalogue API
+- Live Shirin David artist, release, track, artwork, and 30-second preview metadata — served by the SHIRIN Laravel backend when `apiBaseUrl` is configured (owned catalogue first, provider metadata merged behind a kill switch), or directly from the public Deezer catalogue API
 - A provider abstraction (`MusicProvider`) rather than provider-shaped UI code
-- JSONP transport for Deezer so the static app works without exposing a backend credential or relying on inconsistent public CORS headers
+- JSONP transport kept as the automatic fallback so the static app works without exposing a backend credential or relying on inconsistent public CORS headers
 - One global HTML5 audio controller with one active preview element at a time; retired preview events cannot contaminate the next selection
 - Authorized Deezer previews only; no audio downloading, scraping, proxying, caching, or DRM circumvention
 - Persistent mini-player on mobile and desktop transport player
@@ -40,6 +40,20 @@ This maintenance release fixes the player interaction regressions reported again
 - **Working close controls:** panel and sheet backdrops now use separate dismissal metadata instead of sharing `data-action` with their close × buttons. The Lyrics and Track options × buttons therefore always dispatch their own close action; backdrop dismissal and Escape remain available.
 - **Sharp handset artwork:** responsive image candidates are generated from the large Deezer artwork URL with truthful physical width descriptors. The real 56×56 `cover_small` resource is no longer mislabelled as a 250px candidate. Full-player art is constrained to 640px-or-larger candidates when the provider offers them.
 - **Cache rollout:** the static service-worker cache key is bumped to `shirin-static-v7`, so an installed copy receives this JavaScript update rather than retaining the older player implementation offline.
+
+---
+
+## Backend catalogue integration (September 2026, Phase 2.5)
+
+The player can now be pointed at the SHIRIN Laravel backend (`backend/`) instead of calling Deezer directly:
+
+- **`ShirinApiProvider`** (in `js/api.js`) implements the provider contract over the backend's `/api/v1` endpoints: a one-round-trip featured bootstrap for the home screen, merged search, and resolve-driven deep loads. The backend serves the owned catalogue first and merges provider metadata behind its own kill switch, so the static app stays honest about sources (`SHIRIN API` vs `Deezer` in the data-source label).
+- **Stable owned ids:** owned catalogue records use their immutable backend slug as the record id, which keeps queues, favorites, and shareable links stable.
+- **Hash-link redirects:** a cold entry (shared link or reload) to `#/album/{id}` or `#/track/{id}` lands on the backend SEO page when the item is owned content — including legacy provider ids that have an owned twin. In-app navigation never redirects mid-session.
+- **Automatic fallback:** if the backend is unreachable, the app falls back to the direct Deezer JSONP transport, then to the offline demo catalogue. With `apiBaseUrl` empty (the default) the app behaves exactly as the direct-provider version.
+- **Cache rollout:** the service-worker cache key is bumped to `shirin-static-v8` so installed copies receive the API-mode player. The API origin is never cached (network-only).
+
+To enable it, set `apiBaseUrl` in `js/config.js` to the backend origin and add that origin pair to the backend's `FRONTEND_ORIGINS` (see `docs/PHASE_2_5_SETUP.md`). Both values are public configuration — no secrets ship to the browser.
 
 ---
 
@@ -113,7 +127,7 @@ Node.js is **not required** for the frontend itself.
 │   └── responsive.css          # Narrow / large-screen refinements
 └── js/
     ├── app.js                  # Bootstrap and catalog lifecycle
-    ├── api.js                  # Provider contract, Deezer adapter, normalizer, fallback
+    ├── api.js                  # Provider contract, ShirinApiProvider, Deezer adapter, normalizer, fallback
     ├── animations.js           # Ambient artwork color / press feedback helpers
     ├── config.js               # Public-only runtime configuration
     ├── favorites.js            # Favorites and recent history persistence
@@ -135,6 +149,8 @@ Node.js is **not required** for the frontend itself.
 ## Architecture
 
 ```text
+SHIRIN Laravel backend (/api/v1)      ← when apiBaseUrl is set (Phase 2.5)
+        ↓  falls back automatically to
 Deezer public API / future lawful provider
                 ↓
        api.js provider adapter
@@ -168,6 +184,8 @@ class MusicProvider {
 
 The UI consumes normalized records (`artist`, `album`, `track`) and does not need to know about Deezer response shapes. A future official/authorized Spotify, Apple Music, or other provider adapter can implement the same methods without rewriting the player UI.
 
+Three implementations now exist behind this contract: `ShirinApiProvider` (the Laravel backend, owned-first), the direct Deezer JSONP adapter (automatic fallback), and the offline demo catalogue (last resort). The active chain is chosen by `CONFIG.provider` / `CONFIG.apiBaseUrl` in `js/config.js` — see "Backend catalogue integration" above.
+
 ### State
 
 `AppState` is intentionally small and centralized. It manages catalogue status, current route, player state, queue, playback preferences, favorites, recently played metadata, lyrics status, online state, and transient UI state. UI work is selectively updated — progress updates do not rerender the whole page.
@@ -182,7 +200,9 @@ The stock app needs **no API key**.
 
 ```js
 export const CONFIG = {
-  provider: 'deezer-public',
+  provider: 'shirin-api',            // 'shirin-api' | 'deezer-public'
+  apiBaseUrl: '',                    // backend origin, e.g. 'https://api.example.com';
+                                     // '' keeps the app on the direct Deezer provider
   deezerBaseUrl: 'https://api.deezer.com',
   artistQuery: 'Shirin David',
   deezerArtistId: '7312776'
@@ -310,7 +330,7 @@ If you add a privileged music API, user authentication, a private credential, or
 - Official full-playback SDK integration after obtaining appropriate authorization
 - Authorized lyric provider adapter
 - Provider pagination and richer release filters
-- Optional user accounts with a secure backend (not local-only persistence)
+- Frontend sign-in and user library sync (playlists, favorites, history) against the SHIRIN backend — Phase 3; local-only persistence today
 - Explicit PWA install prompt and offline page
 - More provider-supplied related-artist and editorial metadata
 - Automated accessibility, visual-regression, and mobile-device tests
