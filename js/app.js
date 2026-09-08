@@ -158,7 +158,7 @@ function registerServiceWorker() {
   window.addEventListener('load', () => {
     // The build query forces an update check even on hosts that cache an unchanged
     // `service-worker.js` pathname aggressively between GitHub Pages deployments.
-    navigator.serviceWorker.register('./service-worker.js?build=7', { updateViaCache: 'none' })
+    navigator.serviceWorker.register('./service-worker.js?build=8', { updateViaCache: 'none' })
       .then((registration) => registration.update())
       .catch(() => {
         // The app remains fully functional without PWA registration.
