@@ -1,12 +1,14 @@
-# SHIRIN — Session Handoff (after Phase 1)
+# SHIRIN — Session Handoff (after Phase 1.5)
 
 > Read this + `git log` + `docs/ROADMAP.md` before any new session. No chat
 > history is assumed.
 
 ## Current project state
 
-Phase 1 implemented on branch `arena/01a0812b-surprise`, pushed, PR open
-(`Phase 1: Laravel Foundation`, base `main`). Merge after CI green + approval.
+Phase 1 + 1.5 on branch `arena/01a0812b-surprise`, pushed, PR #1 open
+(`Phase 1: Laravel Foundation`, base `main`) — it now also carries the 1.5
+audit + fixes (separate 1.5 PR impossible on the locked single branch).
+Merge after CI green + approval.
 
 ## Completed
 

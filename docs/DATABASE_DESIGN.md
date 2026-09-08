@@ -1,5 +1,9 @@
 # SHIRIN — Database Design (Phase 0)
 
+> Phase 1 status: only identity (`users` + profile fields), framework tables,
+> package tables (Spatie/Sanctum/jobs/cache) and `settings` exist. All catalogue/
+> library/ads tables below are designed-only until their phase (see ROADMAP.md).
+>
 > Design only — no migrations in this phase. Engine: **MySQL 8 / MariaDB 10.6+**
 > (`utf8mb4_unicode_ci`). Conventions: `id` BIGINT unsigned PK · `uuid` (public refs) ·
 > `slug` (SEO, unique per table) · `*_fa` / `*_en` localized columns · soft deletes on

@@ -12,6 +12,12 @@
   `SECURITY_REVIEW.md`, `FEATURE_PRIORITY_MATRIX.md`, `PHASE_1_READINESS_REPORT.md`.
 - Verdict: **Phase 1 Ready: YES** (conditional items scheduled inside Phase 1).
 
+## Phase 1.5 — Quality gate ✅ (audited 2026-09-08, on same PR)
+- Deliverables: `*_AUDIT*`, `*_REVIEW*`, `TEST_REPORT_PHASE_1_5.md`,
+  `PHASE_1_5_FINAL_REPORT.md`; 3 foundation fixes (gate recursion, register
+  fillable, installer username); docs synchronized.
+- Verdict: **READY for Phase 2** (see PHASE_1_5_FINAL_REPORT.md).
+
 ## Phase 1 — Laravel foundation ✅ (implemented 2026-09-08, PR pending)
 - Deliverables: `backend/` (Laravel 12: auth, RBAC, admin shell, settings/flags,
   API v1, i18n, storage, CI) + `docs/PHASE_1_{SETUP,IMPLEMENTATION,SECURITY_CHECK,TEST_REPORT,DATABASE_REPORT}.md`.

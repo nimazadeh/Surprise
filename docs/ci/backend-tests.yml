@@ -25,6 +25,8 @@ jobs:
           extensions: mbstring, xml, curl, zip, gd, fileinfo, sqlite3, pdo_sqlite
           coverage: none
 
+      # NOTE: no composer.lock is committed yet (see docs/PACKAGE_AUDIT.md PKG-01);
+      # until the lock lands, `install` behaves like `update`. Commit the lock ASAP.
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 

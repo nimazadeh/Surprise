@@ -48,7 +48,8 @@ Open: `/` (home) · `/register` · `/login` · `/admin` (owner/admin only).
 
 1. Upload `backend/` above `public_html`; point domain docroot to `backend/public`.
 2. `composer install --no-dev --optimize-autoloader` (or upload local `vendor/`).
-3. `.env`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://…`, DB creds.
+3. `.env`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://…`, DB creds,
+   `SESSION_SECURE_COOKIE=true`, and production `SANCTUM_STATEFUL_DOMAINS`.
 4. `php artisan key:generate && php artisan migrate --seed --force && php artisan shirin:install`.
 5. `php artisan config:cache route:cache view:cache`.
 6. Cron: `* * * * * php /path/backend/artisan schedule:run >> /dev/null 2>&1`.

@@ -23,8 +23,12 @@ OWNER (is_protected) · SUPER ADMIN · ADMIN · CONTENT MANAGER · ADS MANAGER �
 PREMIUM USER · NORMAL USER
 ```
 
+> Phase 1 status: the 5-role subset `owner/admin/editor/premium_user/user` is
+> implemented (Spatie). `super_admin` + content/ads-manager split lands with the
+> admin modules in Phase 4; `is_protected` hardening lands with user management.
+
 - Tables: `roles / permissions / model_has_roles / role_has_permissions`
-  (Spatie Permission compatible, or first-party equivalent — decided Phase 1).
+  (Spatie Permission — decided and implemented in Phase 1).
 - **Hard rules:**
   - `if ($user->id === 1)` is a review-blocking violation. Use `$user->hasRole('owner')`
     and `Gate::before(fn($u) => $u->hasRole('owner') ? true : null)`.

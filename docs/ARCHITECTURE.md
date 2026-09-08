@@ -189,6 +189,9 @@ OWNER (protected, unlimited) > SUPER ADMIN > ADMIN >
 CONTENT MANAGER · ADS MANAGER > PREMIUM USER > NORMAL USER (default)
 ```
 
+> Phase 1 status: implemented subset is `owner/admin/editor/premium_user/user`
+> (Spatie Permission, decided Phase 1). Full 7-role split in Phase 4.
+
 - Spatie-style RBAC *or* first-party `roles/permissions` tables (decision at Phase 1 start;
   both satisfy the "no hardcoded IDs" rule).
 - OWNER: `is_protected` flag — cannot be demoted/deleted/locked; bypasses subscription checks

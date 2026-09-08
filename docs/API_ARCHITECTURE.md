@@ -9,9 +9,13 @@
 - **Envelope:**
 
 ```json
-{ "data": {}, "meta": { "page": 1 }, "message": "ok", "code": "OK" }
-{ "message": "Feature disabled.", "code": "FEATURE_DISABLED", "errors": {} }
+{ "success": true, "data": {}, "message": "" }
+{ "success": false, "data": [], "message": "Feature disabled.", "code": "FEATURE_DISABLED" }
+{ "success": false, "data": [], "message": "The given data was invalid.", "code": "VALIDATION", "errors": {} }
 ```
+
+> Phase 1.5 sync: this is the implemented contract (`ApiResponse`). The earlier
+> `{data,meta,…}` draft was superseded by the approved Phase 1 envelope.
 
 - **Resources:** Eloquent API Resources mirror the current JS normalized shape
   (`id, title, artistName, albumTitle, artwork, duration, explicit, source…`)
