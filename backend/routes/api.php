@@ -30,10 +30,16 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         Route::get('/artists', [ArtistController::class, 'index'])->name('artists.index');
         Route::get('/artists/{slug}', [ArtistController::class, 'show'])
             ->name('artists.show')->where('slug', '[A-Za-z0-9-_]+');
+        Route::get('/artists/{slug}/albums', [ArtistController::class, 'albums'])
+            ->name('artists.albums')->where('slug', '[A-Za-z0-9-_]+');
+        Route::get('/artists/{slug}/tracks', [ArtistController::class, 'tracks'])
+            ->name('artists.tracks')->where('slug', '[A-Za-z0-9-_]+');
 
         Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
         Route::get('/albums/{slug}', [AlbumController::class, 'show'])
             ->name('albums.show')->where('slug', '[A-Za-z0-9-_]+');
+        Route::get('/albums/{slug}/tracks', [AlbumController::class, 'tracks'])
+            ->name('albums.tracks')->where('slug', '[A-Za-z0-9-_]+');
 
         Route::get('/tracks', [TrackController::class, 'index'])->name('tracks.index');
         Route::get('/tracks/{slug}', [TrackController::class, 'show'])
