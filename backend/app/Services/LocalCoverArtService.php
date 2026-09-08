@@ -15,8 +15,14 @@ class LocalCoverArtService implements CoverArtService
         $collection = $this->validatedCollection($collection);
 
         // UUID filename: no executable bits, no double extensions, no
-        // user-controlled path segments (SECURITY_PLAN §4).
-        $extension = strtolower($file->getClientOriginalExtension());
+        // user-controlled path segments (SECURITY_PLAN §4). The extension
+        // comes from the server-side mime guess, never the client name.
+        $extension = strtolower((string) $file->extension());
+
+        if (! in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+            throw new InvalidArgumentException('Unsupported image type.');
+        }
+
         $path = "covers/{$collection}/".((string) Str::uuid()).".{$extension}";
 
         Storage::disk($this->disk())->putFileAs(

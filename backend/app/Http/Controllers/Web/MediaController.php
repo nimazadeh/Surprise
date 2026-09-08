@@ -27,9 +27,14 @@ class MediaController extends Controller
 
         $absolute = $disk->path($path);
 
-        return response()->file($absolute, [
+        // Statement form on purpose: setAutoEtag()'s return type differs
+        // across Symfony versions, and the declared BinaryFileResponse
+        // return must hold on all of them.
+        $response = response()->file($absolute, [
             'Cache-Control' => 'public, max-age=86400',
-            'ETag' => '"'.sha1($path.'|'.$disk->lastModified($path)).'"',
-        ])->setAutoEtag();
+        ]);
+        $response->setAutoEtag();
+
+        return $response;
     }
 }
