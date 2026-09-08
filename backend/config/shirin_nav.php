@@ -25,9 +25,10 @@ return [
     [
         'group' => 'admin.nav.music',
         'items' => [
-            ['label' => 'admin.nav.artists', 'route' => null, 'permission' => 'music.manage', 'phase' => 2],
-            ['label' => 'admin.nav.albums', 'route' => null, 'permission' => 'music.manage', 'phase' => 2],
-            ['label' => 'admin.nav.tracks', 'route' => null, 'permission' => 'music.manage', 'phase' => 2],
+            ['label' => 'admin.nav.artists', 'route' => 'admin.artists.index', 'permission' => 'music.manage', 'phase' => 2],
+            ['label' => 'admin.nav.albums', 'route' => 'admin.albums.index', 'permission' => 'music.manage', 'phase' => 2],
+            ['label' => 'admin.nav.tracks', 'route' => 'admin.tracks.index', 'permission' => 'music.manage', 'phase' => 2],
+            ['label' => 'admin.nav.genres', 'route' => 'admin.genres.index', 'permission' => 'music.manage', 'phase' => 2],
             ['label' => 'admin.nav.media', 'route' => null, 'permission' => 'music.manage', 'phase' => 2],
             ['label' => 'admin.nav.uploads', 'route' => null, 'permission' => 'uploads.review', 'phase' => 4],
         ],

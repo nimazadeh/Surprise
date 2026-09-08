@@ -112,3 +112,64 @@ a { color: var(--accent); }
   .admin-shell { grid-template-columns: 1fr; }
   .sidebar { border-inline-end: 0; border-block-end: 1px solid var(--line); }
 }
+
+/* SHIRIN Phase 2 — music admin + SEO pages (additive, logical properties). */
+.field select, .field textarea, .field input[type="file"],
+.field input[type="search"], .field input[type="date"], .field input[type="number"] {
+  width: 100%;
+  padding: .65rem .8rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+}
+.field textarea { resize: vertical; }
+.field input[type="checkbox"] { width: auto; }
+.field .hint { color: var(--muted); font-size: .78rem; margin-block-start: .25rem; }
+.field .check { display: flex; gap: .5rem; align-items: center; color: var(--text); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+@media (max-width: 720px) { .form-grid { grid-template-columns: 1fr; } }
+
+.toolbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-block-end: 1rem; }
+.toolbar h1 { margin: 0; }
+.toolbar p { margin: .25rem 0 0; }
+.search-form { display: flex; gap: .5rem; margin-block-end: 1rem; }
+.search-form input[type="search"] {
+  flex: 1; padding: .6rem .8rem; border: 1px solid var(--line);
+  border-radius: 999px; background: var(--surface); color: var(--text); font: inherit;
+}
+
+.table-wrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.table th, .table td { text-align: start; padding: .6rem .5rem; border-block-end: 1px solid var(--line); vertical-align: top; }
+.table thead th { color: var(--muted); font-weight: 600; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; }
+.table tbody tr:last-child td { border-block-end: 0; }
+.small { font-size: .78rem; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+.thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 10px; display: block; }
+.preview { max-width: 140px; border-radius: 10px; margin-block-end: .5rem; display: block; }
+.status-pill { font-size: .72rem; border-radius: 999px; padding: .15rem .6rem; border: 1px solid var(--line); white-space: nowrap; }
+.status-draft { color: var(--muted); }
+.status-published { color: var(--success); border-color: rgba(169, 231, 197, .35); }
+.status-archived { color: var(--danger); border-color: rgba(255, 130, 151, .35); }
+
+.row-actions { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: flex-end; }
+.btn-sm { padding: .35rem .8rem; font-size: .75rem; }
+.btn-danger { background: transparent; border-color: rgba(255, 130, 151, .5); color: var(--danger); }
+.btn.disabled, span.btn.disabled { opacity: .45; cursor: not-allowed; }
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-block-start: 1rem; }
+
+/* Public music pages */
+.media-head { display: flex; gap: 1.25rem; align-items: flex-start; }
+.media-art { width: 160px; max-width: 40vw; border-radius: var(--radius); object-fit: cover; }
+.media-meta { list-style: none; margin: 1rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; color: var(--muted); font-size: .85rem; }
+.track-list { list-style: none; margin: 1rem 0 0; padding: 0; }
+.track-list li { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .6rem 0; border-block-end: 1px solid var(--line); }
+.track-list li:last-child { border-block-end: 0; }
+.album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-block-start: 1rem; }
+.album-card { display: block; color: var(--text); text-decoration: none; }
+.album-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; background: var(--surface-2); }
+.album-card strong { display: block; margin-block-start: .4rem; font-size: .85rem; }
+.album-card span { color: var(--muted); font-size: .78rem; }

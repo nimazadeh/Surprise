@@ -89,6 +89,14 @@ class Artist extends Model
     }
 
     /**
+     * Public proxy URL for the artist image (presentation helper).
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        return app(CoverArtService::class)->url($this->image);
+    }
+
+    /**
      * @param  Builder<Artist>  $query
      */
     public function scopePublished(Builder $query): Builder

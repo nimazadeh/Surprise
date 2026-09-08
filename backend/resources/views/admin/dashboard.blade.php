@@ -7,6 +7,9 @@
         <div class="stat"><strong>{{ $stats['verified'] }}</strong><span>{{ __('admin.stats.verified') }}</span></div>
         <div class="stat"><strong>{{ $stats['banned'] }}</strong><span>{{ __('admin.stats.banned') }}</span></div>
         <div class="stat"><strong>{{ $stats['roles'] }}</strong><span>{{ __('admin.stats.roles') }}</span></div>
+        <div class="stat"><strong>{{ $stats['artists'] }}</strong><span>{{ __('admin.stats.artists') }}</span></div>
+        <div class="stat"><strong>{{ $stats['albums'] }}</strong><span>{{ __('admin.stats.albums') }}</span></div>
+        <div class="stat"><strong>{{ $stats['tracks'] }}</strong><span>{{ __('admin.stats.tracks') }}</span></div>
     </div>
 
     <div class="card" style="margin-block-start:1rem">
