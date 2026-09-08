@@ -1,3 +1,15 @@
+# Backend test workflow (staged).
+#
+# Activation: copy this file to .github/workflows/backend-tests.yml on a
+# credential with workflow permissions:
+#   git checkout main && mkdir -p .github/workflows
+#   cp docs/ci/backend-tests.yml .github/workflows/backend-tests.yml
+#   git add .github/workflows/backend-tests.yml && git commit -m "ci: activate backend tests" && git push
+#
+# The Phase 2.5 agent sandbox could not perform that copy itself: its GitHub
+# App credential lacks the `workflows` permission to push workflow files.
+# Until activated, the suite must be run locally (php artisan test).
+
 name: Backend tests
 
 on:

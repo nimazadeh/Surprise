@@ -120,7 +120,7 @@ Rules:
 
 ## 5. CI and merge gates
 
-CI template: `docs/ci/backend-tests.yml` (owner activates at
+CI template: `docs/ci/backend-tests.yml` (the owner activates it at
 `.github/workflows/`; triggers on push/PR touching `backend/**`):
 
 1. Checkout + PHP 8.3 with required extensions.
