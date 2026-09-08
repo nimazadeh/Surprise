@@ -1,0 +1,35 @@
+<?php
+
+return [
+    'title' => 'مدیریت',
+    'dashboard' => 'داشبورد',
+    'welcome' => 'به فونداسیون مدیریت شیرین خوش آمدید.',
+    'stats' => [
+        'users' => 'کاربران',
+        'verified' => 'تأییدشده',
+        'banned' => 'تعلیق‌شده',
+        'roles' => 'نقش‌ها',
+    ],
+    'flags_title' => 'فلگ‌های قابلیت (زنده)',
+    'phase_badge' => 'فاز :phase',
+    'coming_soon' => 'در فازهای بعدی ارائه می‌شود',
+    'back_to_site' => 'بازگشت به سایت',
+    'nav' => [
+        'overview' => 'نمای کلی',
+        'dashboard' => 'داشبورد',
+        'music' => 'موسیقی',
+        'artists' => 'هنرمندان',
+        'albums' => 'آلبوم‌ها',
+        'tracks' => 'ترک‌ها',
+        'media' => 'رسانه',
+        'uploads' => 'آپلودها',
+        'audience' => 'مخاطبان',
+        'users' => 'کاربران',
+        'advertisements' => 'تبلیغات',
+        'system' => 'سیستم',
+        'premium' => 'ابزارهای ویژه',
+        'analytics' => 'آمار',
+        'audit' => 'لاگ‌های مدیریتی',
+        'settings' => 'تنظیمات',
+    ],
+];
